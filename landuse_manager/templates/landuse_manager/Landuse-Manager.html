@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+    <head>
+        <title>VIA - Land Use Manager</title>
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+        
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="{% static 'css/personalized.css' %}" />
+        <link type="text/css" rel="stylesheet" href="{% static 'css/materialize/css/materialize.min.css' %}" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
+        <script src="{% static 'leaflet/leaflet.js' %}"></script>
+        
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.0/leaflet.draw.css"/>
+        <!--<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">-->
+        <!--<link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.css">-->
+
+        <!--<script src="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.js"></script>-->
+        <script src="{% static 'js/jquery-3.1.0.min.js' %}"></script>
+        <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster.js"></script>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.0/leaflet.draw.js"></script>
+
+    </head>
+  
+    <body>
+        <!--Import jQuery before materialize.js-->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="{% static 'css/materialize/js/materialize.min.js' %}"></script>
+     
+        <ul id="dropdownData" class="dropdown-content row">
+            <li><a href="#!">Amenities</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Households</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Land Use</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Roads</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Routes</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Stops</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">TAZ</a></li>  
+        </ul>
+     
+        <ul id="dropdownAna" class="dropdown-content row">
+            <li><a href="#!">Passenger Dispersion</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Road Network</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Robustness</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Route Measure Capacity</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Stop Network</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Transport Network</a></li>
+            <li class="divider"></li>
+            <li><a href="#!">Travel Demand</a></li>
+        </ul>
+
+     
+        <nav>
+            <div class="nav-wrapper row" style = "background-color: black !important">
+                <a href="#!" class="brand-logo col s2 left" style="margin-left: 40px !important;">Plexus</a>
+                <ul class="hide-on-med-and-down col s10 right">
+                    <li><a class="dropdown-button" href="#!" data-activates="dropdownData">Data<i class="material-icons right">arrow_drop_down</i></a></li>
+                    <li><a class="dropdown-button" href="#!" data-activates="dropdownAna">Analysis<i class="material-icons right">arrow_drop_down</i></a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="body-content row">
+            <div class="row file-title-row">
+                <form class="input-field col s6 input-file-name">
+                    <input type="text" style = "border-bottom: 0 !important;" value="{{ filename }}">
+                </form>
+                <!--div class="right col s1">&nbsp;</div-->
+                <a class="light-green btn right col s1" style="font-size: 12px !important; margin-left:18px !important;" onClick="exportLandUse();">Export</a>
+            </div>
+            <div class = "side-nav-bg col s2" style="padding:0 !important;margin:0 !important;">
+                <div id="init-div" class="row">
+                    <form class = "row font-ten">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">search</i>
+                            <input id="icon_search" type="text" class="validate">
+                            <label for="icon_search">Search</label>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class = "col s1">
+                            &nbsp;
+                        </div>
+                        <table class = "left-summary-table bordered col s10">
+                            <thead>
+                              <tr>
+                                  <th data-field="id">Total Land Use</th>
+                                  <th data-field="name" id="summary-total1">0</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Residential</td>
+                                <td id="summary-residential1">0</td>
+                              </tr>
+                              <tr>
+                                <td>Commercial</td>
+                                <td id="summary-commercial1">0</td>
+                              </tr>
+                              <tr>
+                                <td>Parks</td>
+                                <td id="summary-parks1">0</td>
+                              </tr>
+                              <tr>
+                                <td>Industrial</td>
+                                <td id="summary-industrial1">0</td>
+                              </tr>
+                                <tr>
+                                <td>Agriculture</td>
+                                <td id="summary-agriculture1">0</td>
+                              </tr>
+                              <tr>
+                                <td>Utilities</td>
+                                <td id="summary-utilities1">0</td>
+                              </tr>
+                              <tr>
+                                <td>Others</td>
+                                <td id="summary-others1">0</td>
+                              </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="summary-div" class="row" style="display:none;">
+                    <form class = "row font-ten">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">search</i>
+                            <input id="icon_search" type="text" class="validate">
+                            <label for="icon_search">Search</label>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class = "col s1">
+                            &nbsp;
+                        </div>
+                        <table class = "left-summary-table bordered col s10">
+                            <thead>
+                              <tr>
+                                  <th data-field="id">Total Land Use</th>
+                                  <th data-field="name" id="summary-total">0</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Residential</td>
+                                <td id="summary-residential">0</td>
+                              </tr>
+                              <tr>
+                                <td>Commercial</td>
+                                <td id="summary-commercial">0</td>
+                              </tr>
+                              <tr>
+                                <td>Parks</td>
+                                <td id="summary-parks">0</td>
+                              </tr>
+                              <tr>
+                                <td>Industrial</td>
+                                <td id="summary-industrial">0</td>
+                              </tr>
+                                <tr>
+                                <td>Agriculture</td>
+                                <td id="summary-agriculture">0</td>
+                              </tr>
+                              <tr>
+                                <td>Utilities</td>
+                                <td id="summary-utilities">0</td>
+                              </tr>
+                              <tr>
+                                <td>Others</td>
+                                <td id="summary-others">0</td>
+                              </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="edit-div" class = "row" style="display:none;">
+                    <div class="row">
+                        <div class = "row cancel-editing-button">
+                            Editing Features
+                            <div class="right" onclick="cancel()">X</div>
+                        </div>
+                    </div>
+                    <div class="row content-fields">
+                        <input type="hidden" id="a-id">
+                        <div class="row field-element">
+                             <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Type
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <select id = "a-type" class="browser-default select-side col s10">
+                                    <option value="residential" selected>Residential</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="parks">Parks</option>
+                                    <option value="industrial">Industrial</option>
+                                    <option value="agriculture">Agriculture</option>
+                                    <option value="utilities">Utilities</option>
+                                    <option value="other">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row field-element">
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Land Use Name
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="input-field col s10">
+                                    <input id="a-name" type="text" class="input-textfld validate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row field-element">
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Center Latitude
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="input-field col s10">
+                                    <input id="a-lat" type="text" class="input-textfld validate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row field-element">
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Center Longitude
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="input-field col s10">
+                                    <input id="a-long" type="text" class="input-textfld validate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row field-element">
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Maximum Capacity
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="input-field col s10">
+                                    <input id="a-capacity" type="text" class="input-textfld validate">
+                                </div>
+                            </div>
+                        </div>
+                         <div class="row field-element">
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="col s10 field-label">
+                                    Area in sqm.
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col s1">
+                                    &nbsp;
+                                </div>
+                                <div class="input-field col s10">
+                                    <input id="a-area" type="text" class="input-textfld validate">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:20px;">
+                        <a class="green btn col s12" style="font-size: 14px !important;" onclick="save();">Save</a>
+                    </div>
+                    <div class="row" style="margin-top:20px;">
+                        <a class="red btn col s12" style="font-size: 14px !important;" onClick="remove();">Remove</a>
+                    </div>
+                </div>
+            </div>            
+            <div id="mapid" class="col s10 main-bg"></div>
+        </div>
+                
+                
+                
+                
+                
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+
+    <script>
+        
+        var data = {{json_data | safe}};
+
+        var LU = {}; //will contain the polygons of Land Use
+        var summary = {};
+        summary['residential'] = 0;
+        summary['commercial'] = 0;
+        summary['parks'] = 0;
+        summary['industrial'] = 0;
+        summary['agriculture'] = 0;
+        summary['utilities'] = 0;
+        summary['other'] = 0;
+        
+        // variable to track the layer being edited
+          var currentlyEditing;
+          var currentlyDeleting = false;
+          var disableEditing = false; 
+        
+         $( document ).ready(function() {
+            $.ajaxSetup({
+                cache: false,
+                 beforeSend: function(xhr, settings) {
+                     function getCookie(name) {
+                         var cookieValue = null;
+                         if (document.cookie && document.cookie != '') {
+                             var cookies = document.cookie.split(';');
+                             for (var i = 0; i < cookies.length; i++) {
+                                 var cookie = jQuery.trim(cookies[i]);
+                                 // Does this cookie string begin with the name we want?
+                                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                     break;
+                                 }
+                             }
+                         }
+                         return cookieValue;
+                     }
+                     console.log("wassup");
+                     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                         // Only send the token to relative URLs i.e. locally.
+                         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                     }
+                 }
+            });
+
+        });
+        
+        function copyToClipboard(text) {
+          window.prompt("Copy Lat/Long values to clipboard: Ctrl+C, Enter", text);
+        }
+
+        function cancel() {
+            $(function(){
+                    $("#summary-total1").text(Object.keys(LU).length);
+                    $("#summary-residential1").text(summary['residential']);
+                    $("#summary-commercial1").text(summary['commercial']);
+                    $("#summary-parks1").text(summary['parks']);
+                    $("#summary-industrial1").text(summary['industrial']);
+                    $("#summary-agriculture1").text(summary['agriculture']);
+                    $("#summary-utilities1").text(summary['utilities']);
+                    $("#summary-others1").text(summary['other']);
+                    
+                    $("#summary-total").text(Object.keys(LU).length);
+                    $("#summary-residential").text(summary['residential']);
+                    $("#summary-commercial").text(summary['commercial']);
+                    $("#summary-parks").text(summary['parks']);
+                    $("#summary-industrial").text(summary['industrial']);
+                    $("#summary-agriculture").text(summary['agriculture']);
+                    $("#summary-utilities").text(summary['utilities']);
+                    $("#summary-others").text(summary['other']);
+
+            });
+            document.getElementById('init-div').innerHTML = document.getElementById('summary-div').innerHTML;
+            stopEditing();  
+        }
+        
+        function exportLandUse()
+        {
+            console.log(LU[0].toGeoJSON());
+            LU_json = []
+            console.log("LU length: "+LU.length);
+            for(x in LU){
+                LU_json.push(LU[x].toGeoJSON());
+            }
+
+            LU_to_export = JSON.stringify(LU_json);
+            console.log("JSONIFIED: "+LU_to_export);
+            $.ajax({
+                    url: "{% url 'landuse_manager:manageSave' filename %}",
+                    method: "POST",
+                    data: {
+                        "landuse" : LU_to_export,
+                    },// This is the default though, you don't actually need to always mention it
+                    success: function(data){alert("sent to back")},
+                    failure: function(data){alert('Error occurred.')}
+                });
+        }
+        
+        function save() {
+            //save shit here
+             switch(document.getElementById('a-type').options[document.getElementById('a-type').selectedIndex].value)
+            {
+                case "residential": LU[document.getElementById('a-id').value].setStyle({fillColor :'red', fillOpacity:'0.7'}); break;
+                case "commercial":  LU[document.getElementById('a-id').value].setStyle({fillColor :'yellow', fillOpacity:'0.7'}); break;
+                case "parks":  LU[document.getElementById('a-id').value].setStyle({fillColor :'green', fillOpacity:'0.7'}); break;
+                case "industrial":  LU[document.getElementById('a-id').value].setStyle({fillColor :'black', fillOpacity:'0.7'}); break;
+                case "agriculture":  LU[document.getElementById('a-id').value].setStyle({fillColor :'blue', fillOpacity:'0.7'}); break;
+                case "utilities": LU[document.getElementById('a-id').value].setStyle({fillColor :'pink', fillOpacity:'0.7'}); break;
+                default:  LU[document.getElementById('a-id').value].setStyle({fillColor :'orange', fillOpacity:'0.7'}); break;
+            }
+            if(LU[document.getElementById('a-id').value].feature.properties.landuse_type == undefined)
+                summary[document.getElementById('a-type').options[document.getElementById('a-type').selectedIndex].value]+=1;       
+            else if(document.getElementById('a-type').options[document.getElementById('a-type').selectedIndex].value != LU[document.getElementById('a-id').value].feature.properties.landuse_type)
+            {
+                summary[LU[document.getElementById('a-id').value].feature.properties.landuse_type]-=1;
+                summary[document.getElementById('a-type').options[document.getElementById('a-type').selectedIndex].value]+=1;
+            }
+            
+            LU[document.getElementById('a-id').value].feature.properties.centerlatitude = LU[document.getElementById('a-id').value].getBounds().getCenter().lat;
+            LU[document.getElementById('a-id').value].feature.properties.centerlongitude = LU[document.getElementById('a-id').value].getBounds().getCenter().lng;
+            LU[document.getElementById('a-id').value].feature.properties.name = document.getElementById('a-name').value;
+            LU[document.getElementById('a-id').value].feature.properties.capacity = document.getElementById('a-capacity').value;
+            LU[document.getElementById('a-id').value].feature.properties.landuse_type = document.getElementById('a-type').options[document.getElementById('a-type').selectedIndex].value;
+            if(document.getElementById('a-area').value != "0")
+                LU[document.getElementById('a-id').value].feature.properties.area = document.getElementById('a-area').value;
+            else 
+                LU[document.getElementById('a-id').value].feature.properties.area = L.GeometryUtil.geodesicArea(LU[document.getElementById('a-id').value].getLatLngs()[0]);
+            
+             $(function(){
+                    $("#summary-total1").text(Object.keys(LU).length);
+                    $("#summary-residential1").text(summary['residential']);
+                    $("#summary-commercial1").text(summary['commercial']);
+                    $("#summary-parks1").text(summary['parks']);
+                    $("#summary-industrial1").text(summary['industrial']);
+                    $("#summary-agriculture1").text(summary['agriculture']);
+                    $("#summary-utilities1").text(summary['utilities']);
+                    $("#summary-others1").text(summary['other']);
+                    
+                    $("#summary-total").text(Object.keys(LU).length);
+                    $("#summary-residential").text(summary['residential']);
+                    $("#summary-commercial").text(summary['commercial']);
+                    $("#summary-parks").text(summary['parks']);
+                    $("#summary-industrial").text(summary['industrial']);
+                    $("#summary-agriculture").text(summary['agriculture']);
+                    $("#summary-utilities").text(summary['utilities']);
+                    $("#summary-others").text(summary['other']);
+
+            });
+            
+            document.getElementById('init-div').innerHTML = document.getElementById('summary-div').innerHTML;            
+        }
+        
+        function remove() {
+            //save shit here
+            editableLayers.removeLayer(LU[document.getElementById('a-id').value]);
+            delete LU[document.getElementById('a-id').value];
+             $(function(){
+                    $("#summary-total1").text(Object.keys(LU).length);
+                    $("#summary-residential1").text(summary['residential']);
+                    $("#summary-commercial1").text(summary['commercial']);
+                    $("#summary-parks1").text(summary['parks']);
+                    $("#summary-industrial1").text(summary['industrial']);
+                    $("#summary-agriculture1").text(summary['agriculture']);
+                    $("#summary-utilities1").text(summary['utilities']);
+                    $("#summary-others1").text(summary['other']);
+                    
+                    $("#summary-total").text(Object.keys(LU).length);
+                    $("#summary-residential").text(summary['residential']);
+                    $("#summary-commercial").text(summary['commercial']);
+                    $("#summary-parks").text(summary['parks']);
+                    $("#summary-industrial").text(summary['industrial']);
+                    $("#summary-agriculture").text(summary['agriculture']);
+                    $("#summary-utilities").text(summary['utilities']);
+                    $("#summary-others").text(summary['other']);
+
+            });
+            
+            document.getElementById('init-div').innerHTML = document.getElementById('summary-div').innerHTML;            
+        }
+        
+        /******************************* MAP *************************************/
+        
+        var map = L.map('mapid', {editable: true}).setView([14.5995, 120.9842], 15);
+
+        /*mymap.on('click', function(e) {
+            copyToClipboard(e.latlng.lat + ", " + e.latlng.lng);
+        });*/
+        
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            maxZoom: 18,
+            id: 'xgb7.1jd5j7o2',
+            accessToken: 'pk.eyJ1IjoieGdiNyIsImEiOiJjaXR6dGgxaHEwZnJjMm9vODRjbXk2NTczIn0.JGHOHRx1UpItrRAG1B0Fyw'
+        }).addTo(map);
+
+        /******************** EDIT STUFF ****************************/
+        
+    var editableLayers = new L.FeatureGroup();
+    map.addLayer(editableLayers);
+        
+    //PUT POLYGON DRAWING OPTIONS HERE
+        
+    var options = {
+        //position: 'topright',
+        draw: {
+            polyline: false,
+            polygon: {
+                allowIntersection: false, // false estricts shapes to simple polygons
+                drawError: {
+                    fillcolor: '#e1e100', // Color the shape will turn when intersects
+                    opacity: '1'
+                    //message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                },
+                shapeOptions: {
+                    fillcolor: '#bada55',
+                    opacity: '1'
+                }
+            },
+            circle: false, 
+            rectangle: false,
+            marker: false,
+        },
+        edit: false /*{
+            featureGroup: editableLayers, //REQUIRED!!
+            remove: false
+        }*/
+    };
+
+    var drawControl = new L.Control.Draw(options);
+    map.addControl(drawControl);
+
+    map.on('draw:created', function (e) {
+        var type = e.layerType,
+            layer = e.layer,
+            feature = layer.feature = layer.feature || {},
+            props = feature.properties = feature.properties || {};
+        
+        document.getElementById('init-div').innerHTML =  document.getElementById('edit-div').innerHTML;
+        
+        feature.type = "Feature";
+        layer.feature.properties.id = ""+(parseInt(LU[Object.keys(LU)[Object.keys(LU).length - 1]].feature.properties.id)+1);
+        alert(layer.feature.properties.id);
+        layer.feature.properties.centerlatitude = layer.getBounds().getCenter().lat;
+        layer.feature.properties.centerlongitude = layer.getBounds().getCenter().lng;
+        layer.feature.properties.capacity = 0;
+        layer.feature.properties.name = "New Land Use";
+        //layer.feature.properties.landuse_type = "residential";
+        layer.feature.properties.coordinates = layer.getLatLngs();
+        LU[layer.feature.properties.id] = e.layer;
+        
+        document.getElementById('a-id').value = layer.feature.properties.id;
+        document.getElementById('a-lat').value = layer.getBounds().getCenter().lat;
+        document.getElementById('a-long').value = layer.getBounds().getCenter().lng;
+        document.getElementById('a-capacity').value = 0;
+        document.getElementById('a-name').value = "No name";
+        document.getElementById('a-area').value = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);  
+        
+        if (type === 'polygon') {
+            layer.on('click', function () {
+                document.getElementById('init-div').innerHTML = document.getElementById('edit-div').innerHTML;
+                document.getElementById('a-id').value = layer.feature.properties.id;
+                document.getElementById('a-lat').value = layer.getBounds().getCenter().lat;
+                document.getElementById('a-long').value = layer.getBounds().getCenter().lng;
+                document.getElementById('a-capacity').value = layer.feature.properties.capacity;
+                document.getElementById('a-name').value = layer.feature.properties.name;
+                document.getElementById('a-area').value = layer.feature.properties.area;
+                index = 0;
+                switch(layer.feature.properties.landuse_type)
+                {
+                    case "residential": index = 0; break;
+                    case "commercial":  index = 1; break;
+                    case "parks":  index = 2; break;
+                    case "industrial":  index = 3; break;
+                    case "agriculture":  index = 4; break;
+                    case "utilities": index = 5; break;
+                    default:  index = 6; break;
+                }
+                document.getElementById('a-type').selectedIndex=index;
+                startEditing(layer);
+            });
+        }
+        editableLayers.addLayer(layer);
+    });
+    
+        //LatLng(14.60257, 120.98597),LatLng(14.60257, 120.98597),LatLng(14.60252, 120.98297),LatLng(14.60252, 120.98297),LatLng(14.59987, 120.98301),LatLng(14.59987, 120.98301),LatLng(14.59966, 120.98507),LatLng(14.59966, 120.98507)
+        
+        //center LatLng(14.60111, 120.98447)
+        
+    var gdata = [{
+        "type": "Feature",
+        "properties": { "id":"0",
+                        "name":"Bahay Ko",
+                        "landuse_type":"residential",
+                        "centerlatitude":"14.60111",
+                        "centerlongitude":"120.98447",
+                        "capacity":"100",
+                        "area":"2502"},
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [120.98597, 14.60257],
+                [120.98597,  14.60257],
+                [120.98297,  14.60252],
+                [120.98301, 14.59987],
+                [120.98301, 14.59987],
+                [120.98507,14.59966],
+                [120.98507, 14.59966]
+            ]]
+        }
+        }, {
+        "type": "Feature",
+        "properties": { "id":"1",
+                        "name":"Swimming Pool",
+                        "landuse_type":"commercial",
+                        "centerlatitude": "14.59331",
+                        "centerlongitude":"120.98404",
+                        "capacity":"520",
+                        "area":"7107"
+                      },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [120.9811, 14.59484],
+                [120.9811, 14.5948],
+                [120.98187, 14.59202],
+                [120.98187, 14.59202],
+                [120.98248, 14.59069],
+                [120.98248, 14.59069],
+                [120.98578, 14.59061],
+                [120.98578, 14.59065],
+                [120.98698, 14.59243],
+                [120.98698, 14.59243],
+                [120.98316, 14.596],
+                [120.98316, 14.596]
+            ]]
+        }
+    }];
+        
+    /*map.on('click', function(e) {
+        stopEditing();
+      });*/    
+        
+      function stopEditing() {
+        // if a layer is being edited, finish up and disable editing on it afterward.
+        if (currentlyEditing) {
+          //handleEdit(currentlyEditing);
+          currentlyEditing.editing.disable();
+        }
+        currentlyEditing = undefined;
+      }    
+        
+      function startEditing(layer)
+        {
+            if (!disableEditing) {
+              layer.editing.enable();
+              currentlyEditing = layer;
+            }
+
+            
+        }
+        
+    initMap();
+        
+    function initMap(){
+                var selectedFeature = null;
+                var eLayer = L.geoJson(data,{
+                    onEachFeature: function(feature,layer){
+                        
+                        //L.Util.setOptions(layer,{draggable:true});
+                        switch(feature.properties.landuse_type)
+                        {
+                            //instead of index, put change options for colors
+                            case "residential": layer.setStyle({fillColor :'red', fillOpacity:'0.7'}); break;
+                            case "commercial":  layer.setStyle({fillColor :'yellow', fillOpacity:'0.7'}); break;
+                            case "parks":  layer.setStyle({fillColor :'green', fillOpacity:'0.7'}); break;
+                            case "industrial":  layer.setStyle({fillColor :'black', fillOpacity:'0.7'}); break;
+                            case "agriculture":  layer.setStyle({fillColor :'blue', fillOpacity:'0.7'}); break;
+                            case "utilities": layer.setStyle({fillColor :'pink', fillOpacity:'0.7'}); break;
+                            default:  layer.setStyle({fillColor :'orange', fillOpacity:'0.7'}); break;
+                        }
+                        if(summary[feature.properties.landuse_type] == undefined)
+                            summary[feature.properties.landuse_type] = 1;
+                        else summary[feature.properties.landuse_type] +=1;
+
+                        console.log("INIT names " + feature.properties.name);
+                        console.log("INIT id " + feature.properties.id);
+                        layer.feature.properties.area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+                        LU[feature.properties.id] = layer;
+
+                        layer.on('click',function(e){
+                            
+                            document.getElementById('init-div').innerHTML =  document.getElementById('edit-div').innerHTML;
+                            //alert("lat " + layer.feature.properties.latitude);
+                            document.getElementById('a-id').value = layer.feature.properties.id;
+                            document.getElementById('a-lat').value = layer.feature.properties.centerlatitude;
+                            document.getElementById('a-long').value = layer.feature.properties.centerlongitude;
+                            document.getElementById('a-capacity').value = layer.feature.properties.capacity;
+                            document.getElementById('a-name').value = layer.feature.properties.name;
+                            document.getElementById('a-area').value = layer.feature.properties.area;
+                            index = 0;
+                            switch(layer.feature.properties.landuse_type)
+                            {
+                                case "residential": index = 0; break;
+                                case "commercial":  index = 1; break;
+                                case "parks":  index = 2; break;
+                                case "industrial":  index = 3; break;
+                                case "agriculture":  index = 4; break;
+                                case "utilities": index = 5; break;
+                                default:  index = 6; break;
+                            }
+                            document.getElementById('a-type').selectedIndex=index;
+                            
+                            //stopEditing(); 
+                            startEditing(layer);
+                        });
+                            editableLayers.addLayer(layer);
+                        }
+                    }
+                );
+                
+                 $(function(){
+                    $("#summary-total1").text(Object.keys(LU).length);
+                    $("#summary-residential1").text(summary['residential']);
+                    $("#summary-commercial1").text(summary['commercial']);
+                    $("#summary-parks1").text(summary['parks']);
+                    $("#summary-industrial1").text(summary['industrial']);
+                    $("#summary-agriculture1").text(summary['agriculture']);
+                    $("#summary-utilities1").text(summary['utilities']);
+                    $("#summary-others1").text(summary['other']);
+                    
+                    $("#summary-total").text(Object.keys(LU).length);
+                    $("#summary-residential").text(summary['residential']);
+                    $("#summary-commercial").text(summary['commercial']);
+                    $("#summary-parks").text(summary['parks']);
+                    $("#summary-industrial").text(summary['industrial']);
+                    $("#summary-agriculture").text(summary['agriculture']);
+                    $("#summary-utilities").text(summary['utilities']);
+                    $("#summary-others").text(summary['other']);
+
+                });
+        
+            }
+        
+    </script>
+
+
+
+
+  </body>
+</html>

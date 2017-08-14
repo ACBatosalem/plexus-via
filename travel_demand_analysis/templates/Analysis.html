@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+
+    <title>VIA - Amenities Manager</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/personalized.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'intro/introjs.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/LeafletStyleSheet.css' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/materialize/css/materialize.min.css' %}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'intro/intro.js' %}"></script>
+    <!--<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>-->
+    <!--<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>-->
+
+
+    <!--<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">-->
+    <!--<link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.css">-->
+
+    <!--<script src="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.js"></script>-->
+    <script src="{% static 'js/jquery-3.1.0.min.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-heat.js' %}"></script>
+    <script src="{% static 'js/PruneCluster.js' %}"></script>
+    <script type="text/javascript" src="{% static 'css/materialize/js/materialize.min.js' %}"></script>
+</head>
+
+<body>
+<!--Import jQuery before materialize.js-->
+
+
+
+<div id="file-modal" class="modal medium-modal">
+    <div class="modal-content file-select-table ">
+        <table class="bordered highlight">
+            <thead>
+            <tr>
+                <th data-field="id">Name</th>
+                <th data-field="name">Date Modified</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>Amenities-1</td>
+                <td>March 3, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-2</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-3</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-Valenzuela</td>
+                <td>January 31, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-1</td>
+                <td>March 3, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-2</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-3</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-Valenzuela</td>
+                <td>January 31, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-1</td>
+                <td>March 3, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-2</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-3</td>
+                <td>March 1, 2017</td>
+            </tr>
+            <tr>
+                <td>Amenities-Valenzuela</td>
+                <td>January 31, 2017</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-action modal-close waves-effect waves-green btn-flat active-btn">Add</button>
+    </div>
+</div>
+
+
+<!--div id="file-modal" class="modal medium-modal">
+  <div class="modal-content left-align">
+    <h5>
+      <i class="material-icons medium green-text text-accent-4 left">done</i>
+      Changes successfully saved!
+    </h5>
+  </div>
+  <div class="modal-footer">
+    <button class="modal-action modal-close waves-effect waves-green btn-flat active-btn">Ok</button>
+  </div>
+</div-->
+
+<ul id="dropdownData" class="dropdown-content row">
+    <li><a href="#!">Amenities</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Households</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Land Use</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Roads</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Routes</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Stops</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">TAZ</a></li>
+</ul>
+
+<ul id="dropdownAna" class="dropdown-content row">
+    <li><a href="#!">Passenger Dispersion</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Road Network</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Robustness</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Route Measure Capacity</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Stop Network</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Transport Network</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">Travel Demand</a></li>
+</ul>
+
+
+<nav>
+    <div class="nav-wrapper row" style="background-color: black !important">
+        <a href="#!" class="brand-logo col s2 left" style="margin-left: 40px !important;">Plexus</a>
+        <ul class="hide-on-med-and-down col s10 right">
+            <li><a class="dropdown-button" href="#!" data-activates="dropdownData">Data<i class="material-icons right">arrow_drop_down</i></a>
+            </li>
+            <li><a class="dropdown-button" href="#!" data-activates="dropdownAna">Analysis<i
+                    class="material-icons right">arrow_drop_down</i></a></li>
+        </ul>
+    </div>
+</nav>
+<div class="row file-title-row">
+    <form class="input-field col s6 input-file-name">
+        <input type="text" style="border-bottom: 0 !important;" value="TravelDemand-Valenzuela">
+    </form>
+    <!--div class="right col s1">&nbsp;</div-->
+    <a class="light-green btn right col s1" style="font-size: 12px !important; margin-left:18px !important;">Save</a>
+</div>
+<div class="body-content row">
+    <div class="side-nav-bg col s2" style="padding:0 !important;margin:0 !important;height:100% !important;" data-position="right" data-intro="Import here the files that you uploaded in the data managers" data-step="1">
+        <div class="row content-fields">
+            <div class="row input-field col s12">
+                <ul class="collection with-header">
+                    <li class="collection-item" style="font-size:20px !important;">
+                        <div>Amenities <a style="cursor:pointer" id="add-amenity-file" class="secondary-content"><i
+                                class="black-text material-icons">add</i></a><a id="amenity-tooltip" class="secondary-content tooltipped"><i
+                                class="black-text material-icons">info</i></a></div>
+                    </li>
+                    <div id="amenity-included-files">
+                        <li id="sample-added-file" data-step="2" data-intro="You can visualize the files you import on the map by ticking the box on their left hand side" class="collection-item row add-file-intro" style="padding-left:10px !important; padding-right:10px !important;" name="LatestAmenities_cleaned.geojson"><input class="with-gap visualize-amenities" style="margin:0 !important; padding:0 !important;" name="file-checkbox" id="LatestAmenities_cleaned.geojson" value="LatestAmenities_cleaned.geojson" type="checkbox"><label class="col s10 truncate-file" style="top:0rem !important;padding-left:30px !important;" for="LatestAmenities_cleaned.geojson">LatestAmenities_cleaned.geojson</label><a class="secondary-content col s2" onclick="deletefile('amenity','LatestAmenities_cleaned.geojson')"><i class="black-text material-icons">delete</i></a></li>
+                    </div>
+                </ul>
+            </div>
+            <div class="row input-field col s12">
+                <ul class="collection with-header">
+                    <li class="collection-item" style="font-size:20px !important;">
+                        <div>Households<a style="cursor:pointer" id="add-household-file" class="secondary-content"><i
+                                class="black-text material-icons">add</i></a></div>
+                    </li>
+                    <div id="household-included-files">
+
+                    </div>
+                </ul>
+            </div>
+            <div class="row input-field col s12">
+                <ul class="collection with-header">
+                    <li class="collection-item" style="font-size:20px !important;">
+                        <div>Land Use<a style="cursor:pointer" id="add-landuse-file" class="secondary-content"><i
+                                class="black-text material-icons">add</i></a><a id="landuse-tooltip" class="secondary-content tooltipped"><i
+                                class="black-text material-icons">info</i></a></div>
+                    </li>
+                    <div id="landuse-included-files">
+
+                    </div>
+                </ul>
+            </div>
+            <div class="row input-field col s12">
+                <ul class="collection with-header">
+                    <li class="collection-item" style="font-size:20px !important;">
+                        <div>TAZ<a style="cursor:pointer" id="add-trafficzone-file" class="secondary-content"><i
+                                class="black-text material-icons">add</i></a></div>
+                    </li>
+                    <div id="trafficzone-included-files">
+
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--div class = "map-bg col s8">
+    </div-->
+
+    <div id="mapid" class="col s8 main-bg"></div>
+
+    <div class="side-nav-bg col s2">
+        <div id="runanalysis" class="row" style="margin-top:20px; margin-bottom:20px !important;" data-position="left" data-intro="Once importing at least one of each of the data, you can now run the analysis" data-step="3">
+            <a id="run-analysis-btn" class="light-green btn col s10"
+               style="font-size: 14px !important; margin-left:18px !important;">Run
+                Analysis</a>
+        </div>
+        <div class="row">
+            <div>
+                <ul class="tabs" style="font-size:10px;width:100px !important;overflow-x: hidden !important;">
+                    <li class="tab col s3 custom-tab"><a class="active" href="#inbox">Summary</a></li>
+                    <li class="tab col s3 custom-tab"><a href="#table-zone-details">Details</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row" id="inbox">
+            <div class="row" style="">
+                <div class="col s1">
+                    &nbsp;
+                </div>
+                <table class="left-summary-table bordered col s10">
+                    <tbody>
+                    <tr>
+                        <td>Amenities</td>
+                        <td id="amenity-summary">0</td>
+                    </tr>
+                    <tr>
+                        <td>Land Use</td>
+                        <td id="landuse-summary">0</td>
+                    </tr>
+                    <tr>
+                        <td>Households</td>
+                        <td id="household-summary">0</td>
+                    </tr>
+                    <tr>
+                        <td>Traffic Analysis Zones</td>
+                        <td id="trafficzone-summary">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="margin-top:0 !important; padding-top:0 !important;" data-intro="After the analysis has completed, this section will help in visualizing the results of the analysis." data-step="4" data-position="left">
+
+                <p class="filters-header">Filters</p>
+                <div class="trips-checkboxes">
+                        <input type="checkbox" id="analyzed-zones-box" style="padding:0 !important; margin:0 !important;"/>
+                        <label for="analyzed-zones-box" class="checkbox-style"
+                               style="padding-left:20px;padding-right:20px">Display analyzed zones</label>
+                        <input type="checkbox" id="total-od-checkbox" style="padding:0 !important; margin:0 !important;"/>
+                        <label for="total-od-checkbox" class="checkbox-style"
+                               style="padding-left:20px;padding-right:20px">Display zonal OD of trips</label>
+
+                </div>
+                <p class="modes-header">Types of trips</p>
+                <div class="trips-checkboxes">
+                            <input class="with-gap" name="group1" type="radio" id="trip-produced-radio"/>
+                            <label for="trip-produced-radio">Trips Produced</label>
+                            <input class="with-gap" name="group1" type="radio" id="trip-attracted-radio"/>
+                            <label for="trip-attracted-radio">Trips Attracted</label>
+                </div>
+
+                <p class="modes-header">Modes of transportation</p>
+
+                <div class="trips-checkboxes">
+                    <form action="#">
+                        <input class="with-gap" name="group1" type="radio" id="total-od-radio"/>
+                            <label for="total-od-radio">All</label>
+                        <input class="with-gap" name="group1" type="radio" id="jeep-od-radio"/>
+                            <label for="jeep-od-radio">Jeep</label>
+                        <input class="with-gap" name="group1" type="radio" id="bus-od-radio"/>
+                            <label for="bus-od-radio">Bus</label>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="table-zone-details" style="height:500px !important; overflow-y:scroll !important;">
+
+        </div>
+    </div>
+</div>
+<div id="amenity-modal" class="modal medium-modal">
+    <div class="row">
+        <ul id="amenity-modal-ul" class="collection">
+
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button id="amenity-modal-ok-btn" class="modal-action modal-close waves-effect waves-green btn-flat active-btn">
+            Ok
+        </button>
+    </div>
+</div>
+
+<div id="household-modal" class="modal medium-modal">
+    <div class="row">
+        <ul id="household-modal-ul" class="collection">
+
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button id="household-modal-ok-btn"
+                class="modal-action modal-close waves-effect waves-green btn-flat active-btn">
+            Ok
+        </button>
+    </div>
+</div>
+
+<div id="landuse-modal" class="modal medium-modal">
+    <div class="row">
+        <ul id="landuse-modal-ul" class="collection">
+
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button id="landuse-modal-ok-btn"
+                class="modal-action modal-close waves-effect waves-green btn-flat active-btn">
+            Ok
+        </button>
+    </div>
+</div>
+
+<div id="trafficzone-modal" class="modal medium-modal">
+    <div class="row">
+        <ul id="trafficzone-modal-ul" class="collection">
+
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button id="trafficzone-modal-ok-btn"
+                class="modal-action modal-close waves-effect waves-green btn-flat active-btn">
+            Ok
+        </button>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal medium-modal">
+    <div class="modal-content row">
+        <div class="col s12 m12 l12">
+            <form action="">
+                <h5 name="delete-modal-message">This file will be removed. Are you sure?</h5>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a id="delete-file" class="modal-action waves-effect waves-green btn-flat active-btn">Remove</a>
+        <a id="cancel-delete-file"
+           class="modal-action modal-close waves-effect waves-green btn-flat green-text text-accent-4">Cancel</a>
+    </div>
+</div>
+
+<div id="edit-landuse-modal" class="modal medium-modal">
+    <div class="row">
+        <ul id="edit-landuse-modal-ul" class="collection">
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button id="edit-landuse-modal-ok-btn" class="modal-action waves-effect waves-green btn-flat active-btn">
+            Ok
+        </button>
+    </div>
+</div>
+
+<div id="overlay">
+    <div class="preloader-wrapper big active preloader-positioning">
+        <div class="spinner-layer spinner-blue">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+
+        <div class="spinner-layer spinner-red">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+
+        <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+
+        <div class="spinner-layer spinner-green">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+<!----------------------------------------------------- SCRIPTS ------------------------------------------->
+
+<script type="text/javascript">
+        var bool_done_intr_add_file = false;
+        var landuse_categories = ['residential', 'commercial', 'parks', 'industrial', 'agriculture', 'utilities', 'other'];
+        var colors_landuse = ['red', 'yellow', 'green', 'black', 'blue', 'pink', 'orange'];
+        var colors = ['#ff4b00', '#bac900', '#EC1813', '#55BCBE', '#D2204C', '#FF0000', '#ada59a', '#3e647e'],
+        pi2 = Math.PI * 2;
+        var max_attracted=0, max_produced=0, max_score_basis = 0, max_distrib = 0, max_distrib_jeep = 0, max_distrib_bus = 0, chosen_zone_index=-1;
+        var taz_analyzed = [];
+
+        var visualize_analyzed_layers = [];
+        var visualize_od_layers = [];
+
+        var visualize_amenities = [];
+        var visualize_households = [];
+        var visualize_trafficzones = [];
+        var visualize_landuses = [];
+
+        var visualize_amenity_layers = [];
+        var visualize_household_layers = [];
+        var visualize_trafficzone_layers = [];
+        var visualize_landuse_layers = [];
+
+        //zone_landuse_settings[2].setStyle({fillColor: '#800026'});
+        //mymap.removeLayer(zone_landuse_settings[2]);
+
+        var amenity_files = [];
+        var amenity_summaries = [];
+        var household_files = [];
+        var household_summaries = [];
+        var trafficzone_files = [];
+        var trafficzone_summaries = [];
+        var landuse_files = [];
+        var landuse_summaries = [];
+
+        var taz_name_lbl = [];
+        var zonal_od = [], zonal_od_jeep=[], zonal_od_bus=[];
+
+
+
+
+        var OtherMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/marker-icon.png' %}"
+        }
+    });
+
+    var SustenanceMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_sustenance.png' %}"
+        }
+    });
+
+    var EducationMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_education.png' %}"
+        }
+    });
+
+    var TransportMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_transportation.png' %}"
+        }
+    });
+
+    var HealthcareMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_healthcare.png' %}"
+        }
+    });
+
+    var FinanceMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_finance.png' %}"
+        }
+    });
+
+    var CommerceMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_commerce.png' %}"
+        }
+    });
+
+    var EntertainmentMarker = L.Icon.extend({
+        options: {
+            shadowUrl: null,
+            iconAnchor: new L.Point(12, 12),
+            iconSize: new L.Point(24, 24),
+            iconUrl: "{% static 'leaflet/images/amenity_entertainment.png' %}"
+        }
+    });
+        var amenity_categories = ['sustenance','education','transport','healthcare','finance',
+                                  'commerce','entertainment','other'];
+
+
+        var traffic_analysis_zones_layers = [];
+        var to_delete;
+
+        L.Icon.MarkerCluster = L.Icon.extend({
+                options: {
+                    iconSize: new L.Point(44, 44),
+                    className: 'prunecluster leaflet-markercluster-icon'
+                },
+
+                createIcon: function () {
+                // based on L.Icon.Canvas from shramov/leaflet-plugins (BSD licence)
+                var e = document.createElement('canvas');
+                this._setIconStyles(e, 'icon');
+                var s = this.options.iconSize;
+
+                if (L.Browser.retina) {
+                    e.width = s.x + s.x;
+                    e.height = s.y + s.y;
+                } else {
+                    e.width = s.x;
+                    e.height = s.y;
+                }
+
+                // this.draw(e.getContext('2d'), s.x, s.y);
+                this.draw(e.getContext('2d'), e.width, e.height);
+                return e;
+            },
+
+            createShadow: function () {
+                return null;
+            },
+
+            draw: function(canvas, width, height) {
+
+                var xa = 2, xb = 50, ya = 18, yb = 21;
+
+                var r = ya + (this.population - xa) * ((yb - ya) / (xb - xa));
+
+                var radiusMarker = Math.min(r, 21),
+                radiusCenter = 11,
+                center = width / 2;
+
+                if (L.Browser.retina) {
+                    canvas.scale(2, 2);
+                    center /= 2;
+                    canvas.lineWidth = 0.5;
+                }
+
+                canvas.strokeStyle = 'rgba(0,0,0,0.25)';
+
+                var start = 0, stroke = true;
+                for (var i = 0, l = colors.length; i < l; ++i) {
+
+                    var size = this.stats[i] / this.population;
+
+                    if (size > 0) {
+
+                        stroke = size != 1;
+                        canvas.beginPath();
+                        canvas.moveTo(center, center);
+                        canvas.fillStyle = colors[i];
+                        var from = start + 0.14,
+                        to = start + size * pi2;
+
+                        if (to < from || size == 1) {
+                            from = start;
+                        }
+                        canvas.arc(center, center, radiusMarker, from, to);
+
+                        start = start + size * pi2;
+                        canvas.lineTo(center, center);
+                        canvas.fill();
+                        if (stroke) {
+                            canvas.stroke();
+                        }
+                        canvas.closePath();
+                    }
+
+                }
+
+                if (!stroke) {
+                    canvas.beginPath();
+                    canvas.arc(center, center, radiusMarker, 0, Math.PI * 2);
+                    canvas.stroke();
+                    canvas.closePath();
+                }
+
+                canvas.beginPath();
+                canvas.fillStyle = 'white';
+                canvas.moveTo(center, center);
+                canvas.arc(center, center, radiusCenter, 0, Math.PI * 2);
+                canvas.fill();
+                canvas.closePath();
+
+
+                canvas.fillStyle = '#454545';
+                canvas.textAlign = 'center';
+                canvas.textBaseline = 'middle';
+                canvas.font = 'bold '+(this.population < 100 ? '12' : (this.population < 1000 ? '11' : '9'))+'px sans-serif';
+
+                canvas.fillText(this.population, center, center, radiusCenter*2);
+            }
+        });
+
+
+
+        $( document ).ready(function() {
+            introJs().onexit(function() {
+                    $("#sample-added-file").remove();
+            }).start();
+
+            var div_landuse_tooltip = "<div class=\"row\" style=\"width:280px !important;\">";
+            div_landuse_tooltip += "<div class=\"col s12\" style=\"font-weight: bold; background-color:#3e647e;\">Landuse color codes:"
+                                            +"</div>";
+            for(var i=0; i<landuse_categories.length; i++){
+                div_landuse_tooltip += "<div class=\"col s12\" style=\"font-weight: bold; color:"+colors_landuse[i]+";\">"
+                                            +landuse_categories[i]+"</div>";
+            }
+            div_landuse_tooltip += "</div>";
+            $("#landuse-tooltip").attr("data-tooltip",div_landuse_tooltip);
+
+            var div_amenity_tooltip = "<div class=\"row\" style=\"width:280px !important;\">";
+            div_amenity_tooltip += "<div class=\"col s12\" style=\"font-weight: bold; background-color:#3e647e;\">Amenity color codes:"
+                                            +"</div>";
+            for(var i=0; i<amenity_categories.length; i++){
+                div_amenity_tooltip += "<div class=\"col s12\" style=\"font-weight: bold; color:"+colors[i]+";\">"
+                                            +amenity_categories[i]+"</div>";
+            }
+            div_amenity_tooltip += "</div>";
+
+            $("#amenity-tooltip").attr("data-tooltip",div_amenity_tooltip);
+
+
+
+            $('.tooltipped').each(function(index, element) {
+                var span = $('#' + $(element).attr('data-tooltip-id') + '>span:first-child');
+                span.before($(element).attr('data-tooltip'));
+                span.remove();
+            });
+            L.Mask = L.Polygon.extend({
+                options: {
+                    stroke: false,
+                    color: '#333',
+                    fillOpacity: 0.5,
+                    clickable: true,
+
+                    outerBounds: new L.LatLngBounds([-90, -360], [90, 360])
+                },
+
+                initialize: function (latLngs, options) {
+
+                     var outerBoundsLatLngs = [
+                        this.options.outerBounds.getSouthWest(),
+                        this.options.outerBounds.getNorthWest(),
+                        this.options.outerBounds.getNorthEast(),
+                        this.options.outerBounds.getSouthEast()
+                    ];
+                    L.Polygon.prototype.initialize.call(this, [outerBoundsLatLngs, latLngs], options);
+                },
+
+            });
+            L.mask = function (latLngs, options) {
+                return new L.Mask(latLngs, options);
+            };
+
+
+
+
+            $("#overlay").css("display","none");
+            $.ajaxSetup({
+                 beforeSend: function(xhr, settings) {
+                     function getCookie(name) {
+                         var cookieValue = null;
+                         if (document.cookie && document.cookie != '') {
+                             var cookies = document.cookie.split(';');
+                             for (var i = 0; i < cookies.length; i++) {
+                                 var cookie = jQuery.trim(cookies[i]);
+                                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                     break;
+                                 }
+                             }
+                         }
+                         return cookieValue;
+                     }
+                     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                     }
+                 }
+            });
+            introJs().start();
+        });
+
+        L.LabelOverlay = (L.Layer || L.Class).extend({
+            initialize: function(/*LatLng*/ latLng, /*String*/ label, options) {
+                this._latlng = latLng;
+                this._label = label;
+                L.Util.setOptions(this, options);
+            },
+            options: {
+                offset: new L.Point(0, 2)
+            },
+            onAdd: function(map) {
+                this._map = map;
+                if (!this._container) {
+                    this._initLayout();
+                }
+                map.getPanes().overlayPane.appendChild(this._container);
+                this._container.innerHTML = this._label;
+                map.on('viewreset', this._reset, this);
+                this._reset();
+            },
+            onRemove: function(map) {
+                map.getPanes().overlayPane.removeChild(this._container);
+                map.off('viewreset', this._reset, this);
+            },
+            _reset: function() {
+                var pos = this._map.latLngToLayerPoint(this._latlng);
+                var op = new L.Point(pos.x + this.options.offset.x, pos.y - this.options.offset.y);
+                L.DomUtil.setPosition(this._container, op);
+            },
+            _initLayout: function() {
+                this._container = L.DomUtil.create('div', 'leaflet-label-overlay');
+            }
+        });
+
+
+        $('#total-od-radio').click(function() {
+            if(visualize_od_layers.length>0){
+                if($('#total-od-radio').is(':checked')){
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        visualize_od_layers[i].setStyle(od_style(zonal_od[chosen_zone_index][i],max_distrib));
+                        visualize_od_layers[i].setPopupContent(zonal_od[chosen_zone_index][i]+" trips");
+                    }
+                }
+            }else{
+                //$('#total-od-radio').prop("checked", false);
+                Materialize.toast('Pick a zone to verify its overall OD', 4000);
+                //alert("no zone selected");
+            }
+        });
+
+        $('#jeep-od-radio').click(function() {
+            if(visualize_od_layers.length>0){
+                if($('#jeep-od-radio').is(':checked')){
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        visualize_od_layers[i].setStyle(od_style(zonal_od_jeep[chosen_zone_index][i],max_distrib_jeep));
+                        visualize_od_layers[i].setPopupContent(zonal_od_jeep[chosen_zone_index][i]+" trips");
+
+                    }
+                }
+            }else{
+                //$('#jeep-od-radio').prop("checked", false);
+                Materialize.toast('Pick a zone to verify its jeep OD', 4000);
+                //alert("no zone selected");
+            }
+        });
+
+        $('#bus-od-radio').click(function() {
+            if(visualize_od_layers.length>0){
+                if($('#bus-od-radio').is(':checked')){
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        visualize_od_layers[i].setStyle(od_style(zonal_od_bus[chosen_zone_index][i],max_distrib_bus));
+                        visualize_od_layers[i].setPopupContent(zonal_od_bus[chosen_zone_index][i]+" trips");
+                    }
+                }
+            }else{
+                //$('#bus-od-radio').prop("checked", false);
+                Materialize.toast('Pick a zone to verify its jeep OD', 4000);
+                //alert("no zone selected");
+            }
+        });
+
+        $('#trip-produced-radio').click(function() {
+           if(taz_analyzed.length>0){
+               if($('#trip-produced-radio').is(':checked')){
+                   max_score_basis = max_produced;
+                   for(x=0; x<visualize_analyzed_layers.length; x++){
+                       visualize_analyzed_layers[x].setStyle(mystyle(taz_analyzed[x]));
+                   }
+               }
+           }else{
+               $('#trip-produced-radio').prop("checked", false);
+               alert("Run analysis first");
+           }
+        });
+
+        $('#trip-attracted-radio').click(function() {
+           if(taz_analyzed.length>0){
+               if($('#trip-attracted-radio').is(':checked')){
+                   max_score_basis = max_attracted;
+                   for(x=0; x<visualize_analyzed_layers.length; x++){
+                       visualize_analyzed_layers[x].setStyle(mystyle(taz_analyzed[x]));
+                   }
+               }
+           }else{
+               $('#trip-attracted-radio').prop("checked", false);
+               alert("Run analysis first");
+           }
+        });
+
+        function custom_index_length(arr){
+            var count = 0;
+            for(x in arr){
+                count+=1;
+            }
+            return count;
+        }
+
+        function comrpressArray(arr){
+            var compressedArray = [];
+            for(x in arr){
+                compressedArray.push(arr[x]);
+            }
+            return compressedArray;
+        }
+
+        $('#total-od-checkbox').click(function() {
+            alert("lenk OD: "+visualize_od_layers.length);
+            if(visualize_od_layers.length>0){
+                if($('#total-od-checkbox').is(':checked')){
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        visualize_od_layers[i].addTo(mymap);
+                    }
+                }else{
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        mymap.removeLayer(visualize_od_layers[i]);
+                        $('#total-od-radio').prop("checked", false);
+                    }
+                }
+            }else{
+                $('#total-od-checkbox').prop("checked", false);
+                Materialize.toast('No zone selected!', 4000)
+                //alert("no zone selected");
+            }
+        });
+
+        function od_style(value, max_val) {
+            return {
+                color: getColor_distrib(value, max_val),
+                weight: 4,
+                opacity: 1
+            };
+        }
+
+        function getColor_landuse(landuse) {
+            switch(landuse)
+            {
+                case "residential": return 'red'; break;
+                case "commercial":  return 'yellow'; break;
+                case "parks":  return 'green'; break;
+                case "industrial":  return 'black'; break;
+                case "agriculture":  return 'blue'; break;
+                case "utilities": return 'pink'; break;
+                default:  return 'orange'; break;
+            }
+        }
+
+        function getColor_distrib(d, max_val) {
+            /*console.log("maxdistrib: "+max_distrib+", curr: "+d);
+            console.log(">90:"+(d > (max_distrib *0.9)));
+            console.log(">65:"+(d > (max_distrib *0.65)));
+            console.log(">30:"+(d > (max_distrib *0.3)));*/
+            return d > (max_val *0.9) ? '#FF0AE7' :
+                   d > (max_val *0.65)  ? '#B816C6' :
+                   d > (max_val *0.3)  ? '#59279C' :
+                              '#13347C';
+        }
+
+        function visualize_od(zone_index){
+            if($('#total-od-radio').prop("checked") || $('#jeep-od-radio').prop("checked") || $('#bus-od-radio').prop("checked")){
+                if($('#total-od-checkbox').prop("checked")==false){
+                    alert("Activate box for displaying OD to verify the OD of this zone");
+                }
+                var curr_max = -1, curr_zonal_od = [];
+                if($('#total-od-radio').prop("checked")){
+                    curr_zonal_od = zonal_od;
+                    curr_max = max_distrib;
+                }else if($('#jeep-od-radio').prop("checked")){
+                    curr_zonal_od = zonal_od_jeep;
+                    curr_max = max_distrib_jeep;
+                }else{
+                    curr_zonal_od = zonal_od_bus;
+                    curr_max = max_distrib_bus;
+                }
+                chosen_zone_index=zone_index;
+                if(visualize_od_layers.length > 0){
+                    for(var i=0; i<visualize_od_layers.length; i++){
+                        mymap.removeLayer(visualize_od_layers[i]);
+                    }
+                    visualize_od_layers = [];
+                }
+                $('#total-od-checkbox').prop("checked", true);
+                $('#total-od-radio').prop("checked", true);
+                var centroid = JSON.parse(taz_analyzed[zone_index].centroid);
+                var origin_lat = centroid.coordinates[1];
+                var origin_long = centroid.coordinates[0];
+                for(var i=0; i<curr_zonal_od[zone_index].length; i++){
+                    var dest_centroid = JSON.parse(taz_analyzed[i].centroid);
+                    var dest_lat = dest_centroid.coordinates[1];
+                    var dest_long = dest_centroid.coordinates[0];
+                    //console.log("STRONGER: "+zonal_od[zone_index][i]);
+                    var poly_od = new L.Polyline([[origin_lat, origin_long],[dest_lat, dest_long]], od_style(curr_zonal_od[zone_index][i],curr_max));
+                    poly_od.bindPopup(curr_zonal_od[zone_index][i]+" trips", {maxWidth: "auto"});
+                    poly_od.on('mouseover', function (e) {
+                        this.openPopup();
+                    });
+                    poly_od.on('mouseout', function (e) {
+                        this.closePopup();
+                    });
+                    visualize_od_layers.push(poly_od.addTo(mymap));
+                }
+            }else{
+                alert("Please pick a mode.");
+            }
+        }
+
+        $("#run-analysis-btn").click(function(){
+            if(custom_index_length(landuse_files)>0 && custom_index_length(amenity_files)>0 && custom_index_length(household_files)>0 && custom_index_length(trafficzone_files)){
+                if(visualize_analyzed_layers.length>0){
+                    for(x in visualize_analyzed_layers){
+                        mymap.removeLayer(visualize_analyzed_layers[x]);
+                    }
+                    visualize_analyzed_layers = [];
+                }
+                $("#overlay").css("display","inline");
+                //$("#loader-modal").openModal({dismissible:false});
+                $.ajax({
+                    url: "{% url 'travel_demand_analysis:run_analysis' %}",
+                    method: "POST",
+                    data: {
+                        "amenity_files[]" : comrpressArray(amenity_files),
+                        "household_files[]" : comrpressArray(household_files),
+                        "trafficzone_files[]": comrpressArray(trafficzone_files),
+                        "landuse_files[]": comrpressArray(landuse_files)
+                    },
+                    success: function(data) {
+                        max_distrib = data.max_distrib;
+                        max_distrib_jeep = data.max_distrib_jeep;
+                        max_distrib_bus = data.max_distrib_bus;
+                        zonal_od = data.zonal_od;
+                        zonal_od_jeep = data.zonal_od_jeep;
+                        zonal_od_bus = data.zonal_od_bus;
+                        max_attracted = data.max_trip_attracted;
+                        max_produced = data.max_trip_produced;
+                        json_response = JSON.parse(data.taz_json);
+                        taz_analyzed = [];
+                        visualize_analyzed_layers = [];
+                        $(json_response).each(function(key, data) {
+                            var zone_feature = JSON.parse(data.zone_feature);
+                            data.NAME_2 = zone_feature.properties.NAME_2;
+                            console.log("NAME_2: "+data.NAME_2);
+                            lu_commercial_obj = data.lu_commercial_obj;
+                            lu_parks_obj = data.lu_parks_obj;
+                            lu_industrial_obj = data.lu_industrial_obj;
+                            lu_agriculture_obj = data.lu_agriculture_obj;
+                            lu_residential_obj = data.lu_residential_obj;
+                            lu_utilities_obj = data.lu_utilities_obj;
+                            lu_other_obj = data.lu_other_obj;
+
+
+
+
+                            taz_analyzed.push(data);
+                            max_score_basis = max_produced;
+                            var zone_geo = L.geoJson(zone_feature, mystyle(data)).bindTooltip(getAnalyzedTooltip(zone_feature.properties.NAME_2, data));
+                            $('#trip-produced-radio').prop("checked", true);
+                            zone_geo.on('click', function(e) { visualize_od(key); });
+                            visualize_analyzed_layers.push(zone_geo.addTo(mymap));
+                            $("#analyzed-zones-box").prop("checked",true);
+                        });
+                        refresh_zone_details();
+                        $("#overlay").css("display","none");
+                    },
+                    failure: function(data) { 
+                        alert('Error occurred.');
+                    }
+                }); 
+            }else{
+                //alert("amenity or household files are empty!");
+                Materialize.toast('amenity or household files are empty!!', 4000);
+            }
+        });
+
+        $("#analyzed-zones-box").click(function(){
+            if($("#analyzed-zones-box").is(':checked')){
+                for(x in visualize_analyzed_layers){
+                    visualize_analyzed_layers[x].addTo(mymap);
+                }
+            }else{
+                for(x in visualize_analyzed_layers){
+                    mymap.removeLayer(visualize_analyzed_layers[x]);
+                }
+            }
+        });
+
+        function getAnalyzedTooltip(index, feature){
+            return '<b>'+index+'</b>:<br>Total trips produced:'+feature.trips_produced+'<br>Total trips attracted:'+feature.trips_attracted;
+        }
+
+        function refresh_zone_details(){
+            //alert("zonedeets:");
+            console.log("zonedeets:");
+            var zone_details = $("#table-zone-details").empty();
+            for(x in taz_analyzed){
+                var outerDiv = $("<div></div>").addClass("col s12 outer-detail-zone-entry");
+                var tableDiv = $("<table></table>").addClass("left-summary-table bordered col s12").attr("style","height:350px;");
+                var theadDiv = $("<thead></thead>");
+                var trheadDiv = $("<tr></tr>");
+                var th = $("<th></th>").html("Zone "+(parseInt(x)+1)+"("+taz_analyzed[x].NAME_2+")");
+
+                th.appendTo(trheadDiv);
+                trheadDiv.appendTo(theadDiv);
+                theadDiv.appendTo(tableDiv);
+
+                var tbodyDiv = $("<tbody></tbody>");
+                var tr_container = $("<tr></tr>");
+                var tdlabel = $("<td></td>").html("Amenities");
+                var tdvalue = $("<td></td>").html(taz_analyzed[x].total_amenities);
+                tdlabel.appendTo(tr_container);
+                tdvalue.appendTo(tr_container);
+                tr_container.appendTo(tbodyDiv);
+
+                tr_container = $("<tr></tr>");
+                tdlabel = $("<td></td>").html("Land Use");
+                tdvalue = $("<td></td>").html(taz_analyzed[x].main_landuse);
+                tdlabel.appendTo(tr_container);
+                tdvalue.appendTo(tr_container);
+                tr_container.appendTo(tbodyDiv);
+
+                tr_container = $("<tr></tr>");
+                tdlabel = $("<td></td>").html("Houses");
+                tdvalue = $("<td></td>").html(taz_analyzed[x].no_hh);
+                tdlabel.appendTo(tr_container);
+                tdvalue.appendTo(tr_container);
+                tr_container.appendTo(tbodyDiv);
+
+                tr_container = $("<tr></tr>");
+                tdlabel = $("<td></td>").html("Total Trips Produced");
+                tdvalue = $("<td></td>").html(taz_analyzed[x].trips_produced);
+                tdlabel.appendTo(tr_container);
+                tdvalue.appendTo(tr_container);
+                tr_container.appendTo(tbodyDiv);
+
+                tr_container = $("<tr></tr>");
+                tdlabel = $("<td></td>").html("Total Trips Attraction");
+                tdvalue = $("<td></td>").html(taz_analyzed[x].trips_attracted);
+                tdlabel.appendTo(tr_container);
+                tdvalue.appendTo(tr_container);
+                tr_container.appendTo(tbodyDiv);
+
+                tbodyDiv.appendTo(tableDiv);
+                tableDiv.appendTo(outerDiv);
+                outerDiv.appendTo(zone_details);
+            }
+        }
+        
+
+        $("#add-landuse-file").click(function(){
+            var ulDiv = $("#landuse-modal").find("#landuse-modal-ul");
+            $(ulDiv).empty();
+            {% if landuse_filenames %}
+                {% for file in landuse_filenames%}
+                var liDiv = $("<li></li>").addClass("collection-item");
+                var inputDiv = $("<input />").addClass("with-gap").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                if(!(typeof landuse_files['{{file}}'] === 'undefined')){
+                    $(inputDiv).attr("disabled","disabled").attr("checked","checked");
+                }
+                var labelDiv = $("<label></label>").addClass("black-text").attr("for","{{file}}")
+                               .attr("name", "file-label").html("{{file}}");
+                liDiv.append(inputDiv).append(labelDiv);
+                ulDiv.append(liDiv);
+                {% endfor %}
+            {% else %}
+                var h5Elem = $("<h5></h5>").addClass("center").html("There are currently no uploaded landuse files.");
+                ulDiv.append(h5Elem);
+            {% endif %}
+
+            $("#landuse-modal").openModal();
+        });
+
+        $("#edit-landuse").click(function(){
+            $("#edit-landuse-modal").openModal({dismissible:false});
+        });
+        $("#add-amenity-file").click(function(){
+            var ulDiv = $("#amenity-modal").find("#amenity-modal-ul");
+            $(ulDiv).empty();
+            {% if amenity_filenames %}
+                {% for file in amenity_filenames%}
+                var liDiv = $("<li></li>").addClass("collection-item");
+                var inputDiv = $("<input />").addClass("with-gap").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                if(!(typeof amenity_files['{{file}}'] === 'undefined')){
+                    $(inputDiv).attr("disabled","disabled").attr("checked","checked");
+                }
+                var labelDiv = $("<label></label>").addClass("black-text").attr("for","{{file}}")
+                               .attr("name", "file-label").html("{{file}}");
+                liDiv.append(inputDiv).append(labelDiv);
+                ulDiv.append(liDiv);
+                {% endfor %}
+            {% else %}
+                var h5Elem = $("<h5></h5>").addClass("center").html("There are currently no uploaded amenity files.");
+                ulDiv.append(h5Elem);
+            {% endif %}
+
+            $("#amenity-modal").openModal();
+        });
+
+        $("#add-household-file").click(function(){
+            var ulDiv = $("#household-modal").find("#household-modal-ul");
+            $(ulDiv).empty();
+            {% if household_filenames %}
+                {% for file in household_filenames%}
+                var liDiv = $("<li></li>").addClass("collection-item");
+                var inputDiv = $("<input />").addClass("with-gap").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                if(!(typeof household_files['{{file}}'] === 'undefined')){
+                    $(inputDiv).attr("disabled","disabled").attr("checked","checked");
+                }
+                var labelDiv = $("<label></label>").addClass("black-text").attr("for","{{file}}")
+                               .attr("name", "file-label").html("{{file}}");
+                liDiv.append(inputDiv).append(labelDiv);
+                ulDiv.append(liDiv);
+                {% endfor %}
+            {% else %}
+                var h5Elem = $("<h5></h5>").addClass("center").html("There are currently no uploaded household files.");
+                ulDiv.append(h5Elem);
+            {% endif %}
+
+            $("#household-modal").openModal();
+        });
+        
+        $("#add-trafficzone-file").click(function(){
+            var ulDiv = $("#trafficzone-modal").find("#trafficzone-modal-ul");
+            $(ulDiv).empty();
+            {% if trafficzone_filenames %}
+                {% for file in trafficzone_filenames%}
+                var liDiv = $("<li></li>").addClass("collection-item");
+                var inputDiv = $("<input />").addClass("with-gap").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                if(!(typeof trafficzone_files['{{file}}'] === 'undefined')){
+                    $(inputDiv).attr("disabled","disabled").attr("checked","checked");
+                }
+                var labelDiv = $("<label></label>").addClass("black-text").attr("for","{{file}}")
+                               .attr("name", "file-label").html("{{file}}");
+                liDiv.append(inputDiv).append(labelDiv);
+                ulDiv.append(liDiv);
+                {% endfor %}
+            {% else %}
+                var h5Elem = $("<h5></h5>").addClass("center").html("There are currently no uploaded trafficzone files.");
+                ulDiv.append(h5Elem);
+            {% endif %}
+
+            $("#trafficzone-modal").openModal();
+        });
+        
+        $("#edit-landuse").click(function(){
+            $("#edit-landuse-modal").openModal({dismissible:false});
+        });
+        
+        /*function initializeLanduseModal(){
+            var ulDiv = $("#edit-landuse-modal").find("#edit-landuse-modal-ul");
+            $(ulDiv).empty();
+            
+            var selectDiv = $("<select></select>").addClass("browser-default col s6").attr("style", "height:2rem").attr("name","landuse-selector");
+            var option = $("<option></option>").attr("disabled","disabled").attr("selected","selected").val("invalid").html("Select land use");
+            option.appendTo(selectDiv);
+            for(var x=0; x<landuse_categories.length; x++){
+                var option = $("<option></option>").val(landuse_categories[x]).html(landuse_categories[x]);
+                option.appendTo(selectDiv);
+            }
+            for(var x=0; x<traffic_analysis_zones_layers.length; x++){
+                var liDiv = $("<li></li>").addClass("collection-item").addClass("row");
+                var nameDiv = $("<div></div>").addClass("col s6").html("Zone "+(x+1));
+                nameDiv.appendTo(liDiv);
+                $(selectDiv).clone().appendTo(liDiv);
+                liDiv.appendTo(ulDiv);
+            }
+        }*/
+
+        /*$("#edit-landuse-modal-ok-btn").click(function() {
+            var bool_landuse = 0;
+            selectDivs = $("#edit-landuse-modal").find("[name='landuse-selector']");
+            for(var x=0; x<zone_landuse_settings.length; x++){
+                val_lu = $(selectDivs[x]).val();
+                if(val_lu == null){
+                    bool_landuse = 1;
+                    break;
+                }else{
+                    zone_landuse_settings[x] = val_lu;
+                }
+            }
+
+            if(bool_landuse == 0){
+                $("#edit-landuse-modal").closeModal();
+            }else{
+                bool_landuse = 0;
+                alert("Not all zones have land use.");
+            }
+        });*/
+
+        $("#household-modal-ok-btn").click(function() {
+            $("#overlay").css("display","inline");
+            var file_rows = $("#household-modal").find("[name='file-checkbox']");
+            for(var i=0; i<file_rows.length; i++){
+                var filename = $(file_rows[i]).val();
+                if($(file_rows[i]).is(':checked')){
+                    if(typeof household_files[filename] === 'undefined'){
+                        count = 0;
+                        $.ajax({
+                            url: "{% url 'travel_demand_analysis:analysis_add_household' %}",
+                            method: "POST",
+                            data: {
+                                "household_filename" : filename
+                            },
+                            success: function(data) {
+                                /*filename = data.household_filename;
+                                count = data.no_households;
+                                household_files.push(filename);
+                                household_summaries.push(count);
+                                refresh_household_list();*/
+
+                                filename = data.household_filename;
+                                count = data.no_households;
+                                household_files[filename] = filename;
+                                household_summaries[filename] = count;
+
+                                //console.log("mga bahay:"+data.households_json);
+                                households_json = JSON.parse(data.households_json);
+                                addressPoints = households_json.map(function (p) {return [p.latitude, p.longitude] });
+                                var heat = L.heatLayer(addressPoints);
+                                visualize_household_layers[filename] = heat;
+                                //var households_marker = [];
+                                //$(households_json).each(function(key, data) {
+                                //    households_marker.push(data);
+                                //});
+                                //visualize_households[filename] = households_marker;
+                                refresh_household_list();
+                            },
+                            failure: function(data) {
+                                alert('Error occurred.');
+                            }
+                        });
+                    }
+                }
+            }
+            $("#overlay").css("display","none");
+        });
+
+        $("#trafficzone-modal-ok-btn").click(function() {
+            $("#overlay").css("display","inline");
+            var file_rows = $("#trafficzone-modal").find("[name='file-checkbox']");
+            for(var i=0; i<file_rows.length; i++){
+                var filename = $(file_rows[i]).val();
+                if($(file_rows[i]).is(':checked')){
+                    if(typeof trafficzone_files[filename] === 'undefined'){
+                        count = 0;
+                        $.ajax({
+                            url: "{% url 'travel_demand_analysis:analysis_add_trafficzone' %}",
+                            method: "POST",
+                            data: {
+                                "trafficzone_filename" : filename
+                            },
+                            success: function(data) {
+                                //alert("TRAFFICZONE WENT");
+
+                                filename = data.trafficzone_filename;
+                                count = data.no_trafficzones;
+                                trafficzone_files[filename] = filename;
+                                trafficzone_summaries[filename] = count;
+                                trafficzones_json = JSON.parse(data.zone_geojson);
+
+                                var trafficzones_marker = [];
+                                $(trafficzones_json.features).each(function(key, data) {
+                                    trafficzones_marker.push(data);
+                                });
+                                visualize_trafficzones[filename] = trafficzones_marker;
+                                refresh_trafficzone_list();
+                                //alert("DONE WENT");
+                            },
+                            failure: function(data) {
+                                alert('Error occurred.');
+                            }
+                        });
+                    }
+                }
+            }
+            $("#overlay").css("display","none");
+        });
+
+        $("#landuse-modal-ok-btn").click(function() {
+            $("#overlay").css("display","inline");
+            var file_rows = $("#landuse-modal").find("[name='file-checkbox']");
+            for(var i=0; i<file_rows.length; i++){
+                var filename = $(file_rows[i]).val();
+                if($(file_rows[i]).is(':checked')){
+                    if(typeof landuse_files[filename] === 'undefined'){
+                        count = 0;
+                        $.ajax({
+                            url: "{% url 'travel_demand_analysis:analysis_add_landuse' %}",
+                            method: "POST",
+                            data: {
+                                "landuse_filename" : filename
+                            },
+                            success: function(data) {
+
+                                filename = data.landuse_filename;
+                                count = data.no_landuses;
+                                landuse_files[filename] = filename;
+                                landuse_summaries[filename] = count;
+                                landuses_json = JSON.parse(data.landuses_json);
+
+                                var landuses_marker = [];
+                                $(landuses_json.features).each(function(key, data) {
+                                    landuses_marker.push(data);
+                                });
+                                visualize_landuses[filename] = landuses_marker;
+                                refresh_landuse_list();
+                                //alert("DONE WENT");
+                            },
+                            failure: function(data) {
+                                alert('Error occurred.');
+                            }
+                        });
+                    }
+                }
+            }
+            $("#overlay").css("display","none");
+        });
+         
+        function getColor_attraction(d) {
+            console.log("currval:"+d+" maxscore:"+max_score_basis);
+            console.log((max_score_basis *0.9)+","+(max_score_basis *0.65)+","+(max_score_basis *0.3)+","+(max_score_basis *0.3));
+            return d > (max_score_basis *0.9) ? '#FF0AE7' :
+                   d > (max_score_basis *0.65)  ? '#B816C6' :
+                   d > (max_score_basis *0.3)  ? '#59279C' :
+                              '#13347C';
+        }
+
+        function getColor_production(d) {
+            console.log("currval:"+d+" maxscore:"+max_score_basis);
+            console.log((max_score_basis *0.9)+","+(max_score_basis *0.65)+","+(max_score_basis *0.3)+","+(max_score_basis *0.3));
+            return d > (max_score_basis *0.9) ? '#FF210F' :
+                   d > (max_score_basis *0.65)  ? '#FC612E' :
+                   d > (max_score_basis *0.3)  ? '#FAB857' :
+                              '#F8F977';
+        }
+
+
+        function mystyle(feature) {
+            if(max_score_basis == max_produced){
+                //alert("COLOR PRODUCED");
+                return {
+                    fillColor: getColor_production(feature.trips_produced),
+                    weight: 2,
+                    opacity: 1,
+                    color: 'white',
+                    dashArray: '3',
+                    fillOpacity: 0.7
+                };
+            }else{
+                //alert("COLOR ATTRACTED");
+                return {
+                    fillColor: getColor_attraction(feature.trips_attracted),
+                    weight: 2,
+                    opacity: 1,
+                    color: 'white',
+                    dashArray: '3',
+                    fillOpacity: 0.7
+                };
+            }
+        }
+
+        function computeTotal(arr){
+            total = 0;
+            for(x in arr){
+                total += arr[x];
+            }
+            return total;
+        }
+        
+        $("#amenity-modal-ok-btn").click(function() {
+            $("#overlay").css("display","inline");
+            var file_rows = $("#amenity-modal").find("[name='file-checkbox']");
+            for(var i=0; i<file_rows.length; i++){
+                var filename = $(file_rows[i]).val();
+                if($(file_rows[i]).is(':checked')){
+                    if(typeof amenity_files[filename] === 'undefined'){
+                        count = 0;
+                        $.ajax({
+                            url: "{% url 'travel_demand_analysis:analysis_add_amenity' %}",
+                            method: "POST",
+                            data: {
+                                "amenity_filename" : filename
+                            },
+                            success: function(data) {
+                                filename = data.amenity_filename;
+                                count = data.no_amenities;
+                                amenity_files[filename] = filename;
+                                amenity_summaries[filename] = count;
+                                amenities_json = JSON.parse(data.amenities_json);
+
+                                var pruneCluster = new PruneClusterForLeaflet();
+                                pruneCluster.BuildLeafletClusterIcon = function(cluster) {
+                                    var e = new L.Icon.MarkerCluster;
+                                    e.stats = cluster.stats;
+                                    e.population = cluster.population;
+                                    return e;
+                                };
+
+                                pruneCluster.BuildLeafletCluster = function(cluster,position) {
+                                    var m = new L.Marker(position, {
+                                        icon: pruneCluster.BuildLeafletClusterIcon(cluster)
+                                      });
+                                    var divStyle= "<div class=\"row\" style=\"width:140px;\">";
+                                    for(var i=0; i<cluster.stats.length; i++){
+                                        if(cluster.stats[i]!=0){
+                                            divStyle += "<div class=\"col s9\" style=\"font-weight: bold; color:"+colors[i]+";\">"
+                                            +amenity_categories[i]
+                                            +":</div><div class=\"col s3\">"+cluster.stats[i]+"</div>";
+                                        }
+                                    }
+                                    divStyle += "</div>";
+
+                                    m.bindPopup(divStyle, {maxWidth: "auto"});
+                                    m.on('mouseover', function (e) {
+                                        this.openPopup();
+                                    });
+                                    m.on('mouseout', function (e) {
+                                        this.closePopup();
+                                    });
+                                    return m;
+                                };
+                                $(amenities_json.features).each(function(key, data) {
+                                    //console.log("DATA:"+data.properties);
+                                    var marker = new PruneCluster.Marker(data.properties.latitude, data.properties.longitude);
+                                    marker.data.name = data.properties.name;
+                                    marker.data.category_name = data.properties.amenity_type;
+                                    marker.data.popup  = "<div style=\"font-size:1em\"><b>Name:</b></div>"+data.properties.name+"<div style=\"font-size:1em\"><b>Amenity type:</b></div>"+data.properties.amenity_type;
+                                    switch(data.properties.amenity_type)
+                                    {
+                                        case "sustenance": marker.data.icon = new SustenanceMarker; marker.category = 0; break;
+                                        case "education":  marker.data.icon = new EducationMarker; marker.category = 1; break;
+                                        case "transport":  marker.data.icon = new TransportMarker; marker.category = 2; break;
+                                        case "healthcare": marker.data.icon = new HealthcareMarker; marker.category = 3; break;
+                                        case "finance": marker.data.icon = new FinanceMarker; marker.category = 4; break;
+                                        case "commerce": marker.data.icon = new CommerceMarker; marker.category = 5; break;
+                                        case "entertainment": marker.data.icon = new EntertainmentMarker; marker.category = 6; break;
+                                        default: marker.category = 7;break;
+                                    }
+                                    pruneCluster.RegisterMarker(marker);
+                                });
+                                pruneCluster.Cluster.Size = 25;
+                                pruneCluster.ProcessView();
+                                visualize_amenity_layers[filename] = pruneCluster;
+                                refresh_amenity_list();
+                            },
+                            failure: function(data) {
+                                alert('Error occurred.');
+                            }
+                        });
+                    }
+                }
+            }
+            $("#overlay").css("display","none");
+         });
+        function visualize_amenity(inputElem){
+            var filename = $(inputElem).val();
+            if($(inputElem).is(':checked')){
+
+                visualize_amenities[filename] = true;
+                //visualize_amenity_layers[filename].addTo(mymap);// = amenity_layer_list;
+                mymap.addLayer(visualize_amenity_layers[filename]);
+            }else{
+                mymap.removeLayer(visualize_amenity_layers[filename]);
+                delete visualize_amenities[ filename ];
+            }
+        }
+
+        function visualize_household(inputElem){
+            var filename = $(inputElem).val();
+            if($(inputElem).is(':checked')){
+                visualize_households[filename] = true;
+                //visualize_amenity_layers[filename].addTo(mymap);// = amenity_layer_list;
+                mymap.addLayer(visualize_household_layers[filename]);
+                visualize_household_layers[filename];
+            }else{
+                mymap.removeLayer(visualize_household_layers[filename]);
+                delete visualize_households[ filename ];
+            }
+        }
+
+        function visualize_trafficzone(inputElem){
+            //alert("pressed input elem");
+            var filename = $(inputElem).val();
+            if($(inputElem).is(':checked')){
+                var trafficzone_json = visualize_trafficzones[filename];
+                var trafficzone_layer_list = [];
+                for(x in trafficzone_json){
+                    trafficzone_layer_list.push(L.geoJSON(trafficzone_json[x], {style: {
+                                        fillColor: '#FED976',
+                                        weight: 2,
+                                        opacity: 1,
+                                        color: 'white',
+                                        dashArray: '3',
+                                        fillOpacity: 0.7
+                                    }}).bindTooltip('<b>Zone #'+(trafficzone_json[x].properties.NAME_2)+'</b>').addTo(mymap));
+                }
+                visualize_trafficzone_layers[filename] = trafficzone_layer_list;
+            }else{
+                var trafficzone_layer_list = visualize_trafficzone_layers[filename];
+                for(x in trafficzone_layer_list){
+                    mymap.removeLayer(trafficzone_layer_list[x]);
+                }
+                delete visualize_trafficzone_layers[ filename ];
+            }
+        }
+
+        function visualize_landuse(inputElem){
+            //alert("pressed input elem");
+            var filename = $(inputElem).val();
+            if($(inputElem).is(':checked')){
+                var landuse_json = visualize_landuses[filename];
+                var landuse_layer_list = [];
+                for(x in landuse_json){
+                    //console.log(landuse_json[x]);
+                    landuse_layer_list.push(L.geoJSON(landuse_json[x], {style: {
+                                        fillColor: getColor_landuse(landuse_json[x].properties.landuse_type),
+                                        weight: 2,
+                                        opacity: 1,
+                                        color: 'white',
+                                        dashArray: '3',
+                                        fillOpacity: 0.7
+                                    }}).bindTooltip('<b>Zone #'+(landuse_json[x].properties.landuse_type)+'</b>').addTo(mymap));
+                }
+                visualize_landuse_layers[filename] = landuse_layer_list;
+            }else{
+                var landuse_layer_list = visualize_landuse_layers[filename];
+                for(x in landuse_layer_list){
+                    mymap.removeLayer(landuse_layer_list[x]);
+                }
+                delete visualize_landuse_layers[ filename ];
+            }
+        }
+
+        function refresh_amenity_list(){
+            $("#amenity-summary").html(computeTotal(amenity_summaries));
+            var mainDiv = $('#amenity-included-files');
+            $(mainDiv).empty();
+            {% for file in amenity_filenames %}
+            if(!(typeof amenity_files['{{file}}'] === 'undefined')){
+                var listDiv = $("<li></li>").addClass("collection-item row").attr("style","padding-left:10px !important; padding-right:10px !important;").attr("name", "{{file}}");
+                if(bool_done_intr_add_file == false){
+                    listDiv.addClass("add-file-intro");
+                    listDiv.attr("data-intro","You can visualize the files you import by ticking the box on their left hand side");
+                    listDiv.attr("data-step", "1");
+                }
+                var inputDiv = $("<input />").addClass("with-gap visualize-amenities").attr("style","margin:0 !important; padding:0 !important;").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                $(inputDiv).on("click", function(event){
+                    visualize_amenity($(this));
+                });
+                if(!(typeof visualize_amenities['{{file}}'] === 'undefined')){
+                    $(inputDiv).prop("checked",true);
+                }
+
+
+                var pDiv = $("<label></label>").addClass("col s10 truncate-file").attr("style","top:0rem !important;padding-left:30px !important;").attr("for","{{file}}").html('{{file}}')
+                var aDiv = $("<a></a>").addClass("secondary-content col s2").attr("onclick","deletefile('amenity','{{file}}')");
+                var iDiv = $("<i></i>").addClass("black-text material-icons").html('delete');
+                //var deleteBtn = $("<button></button>").addClass("col s4 btn waves-effect").html("delete").attr("onclick","deletefile('amenity','{{file}}')");
+                aDiv.append(iDiv);
+                listDiv.append(inputDiv);
+                listDiv.append(pDiv);
+                listDiv.append(aDiv);
+                mainDiv.append(listDiv);
+            }
+            {% endfor %}
+
+            /*for(x in amenities_json){
+                L.geoJSON(amenities_json[x]).addTo(mymap);
+            }*/
+
+            $('#amenity-modal').closeModal();
+            console.log("honesty: "+bool_done_intr_add_file);
+            if(bool_done_intr_add_file == false){
+                //alert("went intro dynamic!");
+                bool_done_intr_add_file = true;
+                introJs(".add-file-intro").start();
+            }
+        }
+
+        
+        function refresh_trafficzone_list(){
+            $("#trafficzone-summary").html(computeTotal(trafficzone_summaries));
+            var mainDiv = $('#trafficzone-included-files');
+            $(mainDiv).empty();
+            {% for file in trafficzone_filenames %}
+            if(!(typeof trafficzone_files['{{file}}'] === 'undefined')){
+                var listDiv = $("<li></li>").addClass("collection-item row").attr("style","padding-left:10px !important; padding-right:10px !important;").attr("name", "{{file}}");
+                if(bool_done_intr_add_file == false){
+                    listDiv.addClass("add-file-intro");
+                    listDiv.attr("data-intro","You can visualize the files you import by ticking the box on their left hand side");
+                }
+                var inputDiv = $("<input />").addClass("with-gap").attr("style","margin:0 !important; padding:0 !important;").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                $(inputDiv).on("click", function(event){
+                    visualize_trafficzone($(this));
+                });
+                if(!(typeof visualize_trafficzone_layers['{{file}}'] === 'undefined')){
+                    $(inputDiv).prop("checked",true);
+                }
+
+                var pDiv = $("<label></label>").addClass("col s10 truncate-file").attr("style","top:0rem !important;padding-left:30px !important;").attr("for","{{file}}").html('{{file}}')
+                var aDiv = $("<a></a>").addClass("secondary-content col s2").attr("onclick","deletefile('trafficzone','{{file}}')");
+                var iDiv = $("<i></i>").addClass("black-text material-icons").html('delete');
+                //var deleteBtn = $("<button></button>").addClass("col s4 btn waves-effect").html("delete").attr("onclick","deletefile('amenity','{{file}}')");
+                aDiv.append(iDiv);
+                listDiv.append(inputDiv);
+                listDiv.append(pDiv);
+                listDiv.append(aDiv);
+                mainDiv.append(listDiv);
+            }
+            {% endfor %}
+            $('#trafficzone-modal').closeModal();
+            if(bool_done_intr_add_file == false){
+                bool_done_intr_add_file = true;
+                introJs(".add-file-intro").start();
+            }
+        }
+
+        function refresh_landuse_list(){
+            $("#landuse-summary").html(computeTotal(landuse_summaries));
+            var mainDiv = $('#landuse-included-files');
+            $(mainDiv).empty();
+            {% for file in landuse_filenames %}
+            if(!(typeof landuse_files['{{file}}'] === 'undefined')){
+                var listDiv = $("<li></li>").addClass("collection-item row").attr("style","padding-left:10px !important; padding-right:10px !important;").attr("name", "{{file}}");
+                if(bool_done_intr_add_file == false){
+                    listDiv.addClass("add-file-intro");
+                    listDiv.attr("data-intro","You can visualize the files you import by ticking the box on their left hand side");
+                }
+                var inputDiv = $("<input />").addClass("with-gap").attr("style","margin:0 !important; padding:0 !important;").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                $(inputDiv).on("click", function(event){
+                    visualize_landuse($(this));
+                });
+                if(!(typeof visualize_landuse_layers['{{file}}'] === 'undefined')){
+                    $(inputDiv).prop("checked",true);
+                }
+
+                var pDiv = $("<label></label>").addClass("col s10 truncate-file").attr("style","top:0rem !important;padding-left:30px !important;").attr("for","{{file}}").html('{{file}}')
+                var aDiv = $("<a></a>").addClass("secondary-content col s2").attr("onclick","deletefile('landuse','{{file}}')");
+                var iDiv = $("<i></i>").addClass("black-text material-icons").html('delete');
+                //var deleteBtn = $("<button></button>").addClass("col s4 btn waves-effect").html("delete").attr("onclick","deletefile('amenity','{{file}}')");
+                aDiv.append(iDiv);
+                listDiv.append(inputDiv);
+                listDiv.append(pDiv);
+                listDiv.append(aDiv);
+                mainDiv.append(listDiv);
+            }
+            {% endfor %}
+            $('#landuse-modal').closeModal();
+            if(bool_done_intr_add_file == false){
+                bool_done_intr_add_file = true;
+                introJs(".add-file-intro").start();
+            }
+        }
+
+        function refresh_household_list(){
+            $("#household-summary").html(computeTotal(household_summaries));
+            var mainDiv = $('#household-included-files');
+            $(mainDiv).empty();
+            {% for file in household_filenames %}
+            if(!(typeof household_files['{{file}}'] === 'undefined')){
+                var listDiv = $("<li></li>").addClass("collection-item row").attr("style","padding-left:10px !important; padding-right:10px !important;").attr("name", "{{file}}");
+                if(bool_done_intr_add_file == false){
+                    listDiv.addClass("add-file-intro");
+                    listDiv.attr("data-intro","You can visualize the files you import by ticking the box on their left hand side");
+                }
+                var inputDiv = $("<input />").addClass("with-gap").attr("style","margin:0 !important; padding:0 !important;").attr("name","file-checkbox")
+                               .attr("id","{{file}}")
+                               .attr("value","{{file}}")
+                               .attr("type","checkbox");
+                $(inputDiv).on("click", function(event){
+                    visualize_household($(this));
+                });
+                if(!(typeof visualize_households['{{file}}'] === 'undefined')){
+                    $(inputDiv).prop("checked",true);
+                }
+
+                var pDiv = $("<label></label>").addClass("col s10 truncate-file").attr("style","top:0rem !important;padding-left:30px !important;").attr("for","{{file}}").html('{{file}}')
+                var aDiv = $("<a></a>").addClass("secondary-content col s2").attr("onclick","deletefile('household','{{file}}')");
+                var iDiv = $("<i></i>").addClass("black-text material-icons").html('delete');
+                //var deleteBtn = $("<button></button>").addClass("col s4 btn waves-effect").html("delete").attr("onclick","deletefile('amenity','{{file}}')");
+                aDiv.append(iDiv);
+                listDiv.append(inputDiv);
+                listDiv.append(pDiv);
+                listDiv.append(aDiv);
+                mainDiv.append(listDiv);
+            }
+            {% endfor %}
+            $('#household-modal').closeModal();
+            if(bool_done_intr_add_file == false){
+                bool_done_intr_add_file = true;
+                introJs(".add-file-intro").start();
+            }
+        }
+
+
+        function deletefile(type, filename){
+            to_delete = new File(filename, type);
+            $("#delete-modal").find("[name='delete-modal-message']").html(filename+" will be removed. Are you sure?");
+            $("#delete-modal").openModal();
+        }
+
+
+        function removeFromArray(array, item) {
+            var index = array.indexOf(item);
+            array.splice(index, 1);
+            return index;
+        }
+
+        function File(name, type) {
+            this.name = name;
+            this.type = type;
+        }
+        
+        //function TrafficAnalysisZone(zone_no, )
+
+        $("#delete-file").click(function(){
+            type = to_delete.type;
+            filename = to_delete.name;
+            //alert(type+":"+filename);
+            if(type=="amenity"){
+                if(!(typeof visualize_amenities[filename] === 'undefined')){
+                    mymap.removeLayer(visualize_amenity_layers[filename]);
+                }
+                delete amenity_summaries[ filename ];
+                delete amenity_files[ filename ];
+                delete visualize_amenity_layers[ filename ];
+                delete visualize_amenities[ filename ];
+                $("#amenity-summary").html(computeTotal(amenity_summaries));
+                $("#amenity-included-files").find("[name='"+filename+"']").remove();
+            }else if(type=="household"){
+                delete household_summaries[ filename ];
+                delete household_files[ filename ];
+                delete visualize_household_layers[ filename ];
+                delete visualize_households[ filename ];
+                $("#household-summary").html(computeTotal(household_summaries));
+                $("#household-included-files").find("[name='"+filename+"']").remove();
+            }else if(type=="trafficzone"){
+                if(!(typeof visualize_trafficzone_layers[filename] === 'undefined')){
+                    var trafficzone_layer_list = visualize_trafficzone_layers[filename];
+                    for(x in trafficzone_layer_list){
+                        mymap.removeLayer(trafficzone_layer_list[x]);
+                    }
+                }
+                delete trafficzone_summaries[ filename ];
+                delete trafficzone_files[ filename ];
+                delete visualize_trafficzone_layers[ filename ];
+                delete visualize_trafficzones[ filename ];
+                $("#trafficzone-summary").html(computeTotal(trafficzone_summaries));
+                $("#trafficzone-included-files").find("[name='"+filename+"']").remove();
+            }
+            $("#delete-modal").closeModal();
+        });
+
+        //END OF XGB SCRIPT
+
+        /*$("#runanalysis").click(function(){
+
+            $("#file-modal").openModal({
+                ready: function(){
+
+                },
+                complete: function(){
+
+                }
+            });
+        });*/
+    
+        var originalContent;
+
+        function showModify(){
+          originalContent = $('#side-nav-holder').html();
+          var modifyContent = $('#modify-content').html()
+          $('#side-nav-holder').fadeOut('slow', function() {
+              $('#side-nav-holder').replaceWith("<div id='side-nav-holder' class='side-nav-bg col s3' style='display:none'>" + modifyContent + "</div>");
+              $('#side-nav-holder').fadeIn('slow');
+          });
+        }
+
+        function showOriginal(){
+          $('#side-nav-holder').fadeOut('slow', function() {
+              $('#side-nav-holder').replaceWith("<div id='side-nav-holder' class='side-nav-bg col s3' style='display:none'>" + originalContent + "</div>");
+              $('#side-nav-holder').fadeIn('slow');
+          });
+        }
+
+
+        function copyToClipboard(text) {
+          window.prompt("Copy Lat/Long values to clipboard: Ctrl+C, Enter", text);
+        }
+
+        function addAmenity(){
+          $('#amenity-tbody').append('<tr><td><input placeholder="Placeholder" type="text" style="height:auto !important; font-size:11px !important;text-align: center"></td><td><input placeholder="Placeholder" type="text" style="height:auto !important; font-size:11px !important;text-align: center"></td><td><input placeholder="Placeholder" type="text" style="height:auto !important; font-size:11px !important;text-align: center"></td><td><input placeholder="Placeholder" type="text" style="height:auto !important; font-size:11px !important;text-align: center"></td></tr>');
+
+          var mydiv = $("#amenity-tbody");
+          mydiv.scrollTop(mydiv.prop("scrollHeight"));
+        }
+
+    
+        /******************************* MAP *************************************/
+        
+        var mymap = L.map('mapid', {editable: true}).setView([14.5995, 120.9842], 15);
+
+        /*mymap.on('click', function(e) {
+            copyToClipboard(e.latlng.lat + ", " + e.latlng.lng);
+        });*/
+        
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            maxZoom: 18,
+            id: 'xgb7.1jd5j7o2',
+            accessToken: 'pk.eyJ1IjoieGdiNyIsImEiOiJjaXR6dGgxaHEwZnJjMm9vODRjbXk2NTczIn0.JGHOHRx1UpItrRAG1B0Fyw'
+        }).addTo(mymap);
+
+
+
+
+
+
+
+</script>
+
+
+</body>
+</html>
