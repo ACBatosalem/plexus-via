@@ -156,45 +156,79 @@ class TripGeneration:
         data = pd.read_csv(self.pathToData, index_col=0)
         return data.loc[:, self.production_col_names]
 
-class TripDistribution:
 
-    def __init__(self, productions, attractions):
+import math as math
+import matplotlib.pyplot as plt
+
+
+class TripDistribution:
+    def __init__(self, productions, attractions, travelTime, fare, income):
         self.productions = productions
         self.attractions = attractions
+        self.travelTime = travelTime
+        self.fare = fare
+        self.income = income
         self.row = len(productions)
         self.col = len(attractions)
-        self.possibleError = 3
+        self.possibleError = sum(productions) * 0.2
         self.error = 0
+        self.cost = None
 
     def getGeneralizedCost(self, cost):
         return 1.0 / (cost * cost)
 
+    def getCost(self):
+        return self.cost
+
+    def computeCost(self, travelTime, fare, income):
+        costMatrix = [[1 for x in range(self.row)] for y in range(self.col)]
+        for x in range(self.row):
+            for y in range(self.col):
+                costMatrix[x][y] = (travelTime[x][y]) * income[x] + fare[x][y]
+        return costMatrix
+
     def getTripDistribution(self):
         distributions = [[self.attractions[y] for x in range(self.row)] for y in range(self.col)]
-        costMatrix = [[1 for x in range(self.row)] for y in range(self.col)]
-        #costMatrix = [[1.0, 1.2, 1.8], [1.2, 1.0, 1.5], [1.8, 1.5, 1.0]]
+        finalDistributions = [[self.attractions[y] for x in range(self.row)] for y in range(self.col)]
+        # costMatrix = [[1 for x in range(self.row)] for y in range(self.col)]
+        costMatrix = self.computeCost(self.travelTime, self.fare, self.income)
+        self.cost = costMatrix
         A = [1 for x in range(self.row)]
         B = [1 for x in range(self.col)]
+        A = self.computeA(B, costMatrix)
+        B = self.computeB(A, costMatrix)
 
         currentBalancingFactor = 0  # 0 for A, 1 for B
         isConvergent = False
+        shit = 0
+        smallestError = 1000000000
 
-        while isConvergent == False:
+        #         while isConvergent == False:
+        for x in range(100):
             if currentBalancingFactor == 0:
-                A = self.computeA(B, costMatrix)
+                tempA = self.computeA(B, costMatrix)
+                A = tempA
                 currentBalancingFactor = 1
             elif currentBalancingFactor == 1:
-                B = self.computeB(A, costMatrix)
+                tempB = self.computeB(A, costMatrix)
+                B = tempB
                 currentBalancingFactor = 0
             distributions = self.computeDistributions(A, B, costMatrix)
-            isConvergent = self.checkIfConvergent(distributions)
-        return distributions
+            error = self.getError(distributions)
+            if (smallestError > error and error != 0):
+                smallestError = error
+                finalDistributions = distributions
+                self.error = error
+                #                 shit = x
+        return finalDistributions
 
     def computeDistributions(self, A, B, costMatrix):
         distributions = [[self.attractions[y] for x in range(self.row)] for y in range(self.col)]
         for x in range(self.row):
             for y in range(self.col):
-                distributions[x][y] = A[x] * self.productions[x] * B[y] * self.attractions[y] * self.getGeneralizedCost(costMatrix[x][y])
+                distributions[x][y] = round(
+                    A[x] * self.productions[x] * B[y] * self.attractions[y] * self.getGeneralizedCost(costMatrix[x][y]),
+                    1)
         return distributions
 
     def checkIfConvergent(self, distributions):
@@ -216,9 +250,12 @@ class TripDistribution:
 
         for x in range(self.row):
             error += abs(derivedProductions[x] - self.productions[x])
-            error += abs(derivedAttractions[y] - self.attractions[y])
+            error += abs(derivedAttractions[x] - self.attractions[x])
 
         return error
+
+    def getErrorPercentage(self):
+        return self.error / sum(self.productions)
 
     def computeA(self, B, costMatrix):
         A = [1 for x in range(self.row)]
@@ -226,10 +263,7 @@ class TripDistribution:
             sum = 0.0
             for y in range(0, self.col):
                 sum += B[y] * self.attractions[y] * self.getGeneralizedCost(costMatrix[x][y])
-            if(sum!=0):
-                A[x] = 1.0 / sum
-            else:
-                A[x] = 0
+            A[x] = 1.0 / sum
         return A
 
     def computeB(self, A, costMatrix):
@@ -238,89 +272,100 @@ class TripDistribution:
             sum = 0.0
             for y in range(0, self.col):
                 sum += A[y] * self.productions[y] * self.getGeneralizedCost(costMatrix[x][y])
-            if(sum!=0):
-                B[x] = 1.0 / sum
-            else:
-                B[x] = 0
+            B[x] = 1.0 / sum
         return B
 
-    def getDummyOD(self, cols, row):
-        return [[randint(0,1200) for x in range(row)] for y in range(cols)]
+
+import random
 
 
 class ModalSplit:
-    def __init__(self, od_matrix, pathToData):
+    def __init__(self, od_matrix, pathToData, income, fares, travelTimes):
         self.od_matrix = od_matrix
         self.pathToData = pathToData
         self.travel_costs = []
         self.travel_probabilities = []
         self.modes = ['jeep', 'bus']
-
-    def computeGeneralizedCosts(self, zone_number):
-        # data = pd.read_csv(self.pathToData, index_col=0)
+        self.income = income
+        self.fares = fares
+        self.travelTimes = travelTimes
         self.travel_costs = [None] * len(self.modes)
-        for x in range(0, len(self.modes)):
-            self.travel_costs[x] = random.randrange(1, 4)
 
-        # Compute for generalized cost for each mode for this specific zone
-        # populate self.travel_costs with the travel costs
-        self.computeModalProbabilities()
+    def computeGeneralizedCosts(self, mode_number):
+        costMatrix = [[1 for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
+        for x in range(len(self.od_matrix)):
+            for y in range(len(self.od_matrix)):
+                if (self.fares[mode_number][x][y] == 0):
+                    costMatrix[x][y] = None
+                else:
+                    costMatrix[x][y] = self.travelTimes[mode_number][x][y] * self.income[x] + \
+                                       self.fares[mode_number][x][y]
 
-    def computeModalProbabilities(self):
-        self.travel_probabilities = [None] * len(self.modes)
+        return costMatrix
+
+    #         #data = pd.read_csv(self.pathToData, index_col=0)
+
+    #         self.travel_costs = [None] * len(self.modes)
+    #         for x in range(0, len(self.modes)):
+    #             self.travel_costs[x] = random.randrange(1,4)
+    #         #Compute for generalized cost for each mode for this specific zone
+    #         # populate self.travel_costs with the travel costs
+    #         self.computeModalProbabilities()
+
+    def computeModalProbabilities(self, mode_number, beta):
+        travel_probabilities = [[1 for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
         sum = 0
         # print(len(self.travel_costs))
-        for x in range(0, len(self.modes)):
-            sum += exp(-self.travel_costs[x])
-        for x in range(0, len(self.modes)):
-            self.travel_probabilities[x] = exp(-self.travel_costs[x]) / sum
-            print(str(x)+"travel probs:"+str(self.travel_probabilities[x]))
-            # print(self.travel_costs)
-            # print(self.travel_probabilities)
+        for x in range(len(self.od_matrix)):
+            for y in range(len(self.od_matrix)):
+                sum = 0
+                for k in range(len(self.modes)):
+                    if (self.travel_costs[k][x][y] != None):
+                        sum += math.e ** ((-beta) * self.travel_costs[k][x][y])
 
-    def getPartitionedTripsByMode(self, total_trips):
-        return total_trips * self.travel_probabilities[0], self.travel_probabilities[1], self.travel_probabilities[2]
+                if (self.travel_costs[mode_number][x][y] != None):
+                    travel_probabilities[x][y] = math.e ** ((-beta) * self.travel_costs[mode_number][x][y]) / sum
+                else:
+                    travel_probabilities[x][y] = None
+        return travel_probabilities
+        # print(self.travel_costs)
+        # print(self.travel_probabilities)
+
+    def getBeta(self, mode_number):
+        sum = 0
+        for x in range(len(self.od_matrix)):
+            for y in range(len(self.od_matrix)):
+                if (self.travel_costs[mode_number][x][y] != None):
+                    sum += self.travel_costs[mode_number][x][y]
+        return 1 / (sum / (len(self.od_matrix) * len(self.od_matrix)))
+
+    def getSplittedTrips(self, mode_number):
+        splittedTrips = [[None for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
+        for x in range(len(self.od_matrix)):
+            for y in range(len(self.od_matrix)):
+                if (self.travel_probabilities[mode_number][x][y] != None):
+                    splittedTrips[x][y] = round(self.od_matrix[x][y] * self.travel_probabilities[mode_number][x][y], 2)
+
+        return splittedTrips
 
     def process_od_matrix(self):
         # print("size:"+str(len(self.od_matrix))+","+str(len(self.od_matrix[0])))
         # df = DataFrame(columns=('lib', 'qty1', 'qty2'))
         # for i in range(5):
         # df.loc[i] = [randint(-1,1) for n in range(3)]
-        cols = list(range(len(self.od_matrix[0])))
-        df_list = []
-        for x in range(0, len(self.modes)):
-            df = []
-            df_list.append(df)
+        for x in range(len(self.modes)):
+            self.travel_costs[x] = self.computeGeneralizedCosts(x)
 
-        for y in range(0, len(self.od_matrix)):
-            self.computeGeneralizedCosts(y)
-            for z in range(0, len(self.modes)):
-                od_row = []
-                for x in range(0, len(self.od_matrix[0])):
-                    # print("x:"+str(x)+" y:"+str(y)+" z:"+str(z))
-                    od_row.append(round(self.od_matrix[y][x] * self.travel_probabilities[z], 2))
-                df_list[z].append(od_row)
+        beta = [None] * len(self.modes)
+        for x in range(len(self.modes)):
+            beta[x] = self.getBeta(x)
 
-        return df_list
+        self.travel_probabilities = [None] * len(self.modes)
+        for x in range(len(self.modes)):
+            self.travel_probabilities[x] = self.computeModalProbabilities(x, beta[x]);
 
-    def process_od_matrix2(self):
-        # print("size:"+str(len(self.od_matrix))+","+str(len(self.od_matrix[0])))
-        # df = DataFrame(columns=('lib', 'qty1', 'qty2'))
-        # for i in range(5):
-        # df.loc[i] = [randint(-1,1) for n in range(3)]
-        cols = list(range(len(self.od_matrix[0])))
-        df_list = []
-        for x in range(0, len(self.modes)):
-            df = pd.DataFrame(columns=cols)
-            df_list.append(df)
+        final_matrices = [None] * len(self.modes)
+        for x in range(len(self.modes)):
+            final_matrices[x] = self.getSplittedTrips(x)
 
-        for y in range(0, len(self.od_matrix)):
-            self.computeGeneralizedCosts(y)
-            for z in range(0, len(self.modes)):
-                od_row = []
-                for x in range(0, len(self.od_matrix[0])):
-                    # print("x:"+str(x)+" y:"+str(y)+" z:"+str(z))
-                    od_row.append(round(self.od_matrix[x][y] * self.travel_probabilities[z], 2))
-                df_list[z].loc[y] = od_row
-
-        return df_list
+        return final_matrices
