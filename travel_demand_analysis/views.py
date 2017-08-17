@@ -102,7 +102,8 @@ def run_analysis(request):
 
         td = TripDistribution(overall_trip_production, overall_trip_attraction, travelTime, fare, salary)
         #distribution = td.getTripDistribution()
-        distribution = td.getDummyOD(len(overall_trip_production), len(overall_trip_production))
+        distribution = td.getTripDistribution()
+        #distribution = td.getDummyOD(len(overall_trip_production), len(overall_trip_production))
         flattened_distrib = [val for sublist in distribution for val in sublist]
         pandas_distrib = pd.DataFrame(distribution, columns=range(0, len(overall_trip_production)))
         #zonal_od_matrix = json.dumps(distribution, indent=4)

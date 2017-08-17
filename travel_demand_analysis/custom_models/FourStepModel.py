@@ -172,7 +172,7 @@ class TripDistribution:
         self.col = len(attractions)
         self.possibleError = sum(productions) * 0.2
         self.error = 0
-        self.cost = None
+        self.cost = 0
 
     def getGeneralizedCost(self, cost):
         return 1.0 / (cost * cost)
@@ -289,14 +289,14 @@ class ModalSplit:
         self.income = income
         self.fares = fares
         self.travelTimes = travelTimes
-        self.travel_costs = [None] * len(self.modes)
+        self.travel_costs = [0] * len(self.modes)
 
     def computeGeneralizedCosts(self, mode_number):
         costMatrix = [[1 for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
         for x in range(len(self.od_matrix)):
             for y in range(len(self.od_matrix)):
                 if (self.fares[mode_number][x][y] == 0):
-                    costMatrix[x][y] = None
+                    costMatrix[x][y] = 0
                 else:
                     costMatrix[x][y] = self.travelTimes[mode_number][x][y] * self.income[x] + \
                                        self.fares[mode_number][x][y]
@@ -320,13 +320,13 @@ class ModalSplit:
             for y in range(len(self.od_matrix)):
                 sum = 0
                 for k in range(len(self.modes)):
-                    if (self.travel_costs[k][x][y] != None):
+                    if (self.travel_costs[k][x][y] != 0):
                         sum += math.e ** ((-beta) * self.travel_costs[k][x][y])
 
-                if (self.travel_costs[mode_number][x][y] != None):
+                if (self.travel_costs[mode_number][x][y] != 0):
                     travel_probabilities[x][y] = math.e ** ((-beta) * self.travel_costs[mode_number][x][y]) / sum
                 else:
-                    travel_probabilities[x][y] = None
+                    travel_probabilities[x][y] = 0
         return travel_probabilities
         # print(self.travel_costs)
         # print(self.travel_probabilities)
@@ -335,15 +335,15 @@ class ModalSplit:
         sum = 0
         for x in range(len(self.od_matrix)):
             for y in range(len(self.od_matrix)):
-                if (self.travel_costs[mode_number][x][y] != None):
+                if (self.travel_costs[mode_number][x][y] != 0):
                     sum += self.travel_costs[mode_number][x][y]
         return 1 / (sum / (len(self.od_matrix) * len(self.od_matrix)))
 
     def getSplittedTrips(self, mode_number):
-        splittedTrips = [[None for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
+        splittedTrips = [[0 for x in range(len(self.od_matrix))] for y in range(len(self.od_matrix))]
         for x in range(len(self.od_matrix)):
             for y in range(len(self.od_matrix)):
-                if (self.travel_probabilities[mode_number][x][y] != None):
+                if (self.travel_probabilities[mode_number][x][y] != 0):
                     splittedTrips[x][y] = round(self.od_matrix[x][y] * self.travel_probabilities[mode_number][x][y], 2)
 
         return splittedTrips
@@ -356,15 +356,15 @@ class ModalSplit:
         for x in range(len(self.modes)):
             self.travel_costs[x] = self.computeGeneralizedCosts(x)
 
-        beta = [None] * len(self.modes)
+        beta = [0] * len(self.modes)
         for x in range(len(self.modes)):
             beta[x] = self.getBeta(x)
 
-        self.travel_probabilities = [None] * len(self.modes)
+        self.travel_probabilities = [0] * len(self.modes)
         for x in range(len(self.modes)):
             self.travel_probabilities[x] = self.computeModalProbabilities(x, beta[x]);
 
-        final_matrices = [None] * len(self.modes)
+        final_matrices = [0] * len(self.modes)
         for x in range(len(self.modes)):
             final_matrices[x] = self.getSplittedTrips(x)
 

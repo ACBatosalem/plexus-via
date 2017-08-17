@@ -1,4 +1,5 @@
 *.pyc
 .idea/workspace.xml
+media/households/
 README.md
 db.sqlite3
